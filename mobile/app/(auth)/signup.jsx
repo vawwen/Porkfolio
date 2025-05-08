@@ -11,10 +11,11 @@ import {
 } from "react-native";
 import styles from "../../assets/styles/signup.styles";
 import { Ionicons } from "@expo/vector-icons";
-import COLORS from "../../constants/colors";
+import { colors } from "../../constants/Theme";
 import { useState } from "react";
 import { router } from "expo-router";
 import { useAuthStore } from "../../store/authStore";
+import BackButton from "../../components/BackButton"
 
 export default function Signup() {
   const [username, setUsername] = useState("");
@@ -36,6 +37,7 @@ export default function Signup() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={styles.container}>
+        <BackButton />
         <View style={styles.header}>
           <Image
             source={require("../../assets/images/i.png")}
@@ -55,13 +57,13 @@ export default function Signup() {
               <Ionicons
                 name="person-outline"
                 size={20}
-                color={COLORS.primary}
+                color={colors.primary}
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.input}
                 placeholder="Lebron James"
-                placeholderTextColor={COLORS.placeholderText}
+                placeholderTextColor={colors.placeholderText}
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize="none"
@@ -75,13 +77,13 @@ export default function Signup() {
               <Ionicons
                 name="mail-outline"
                 size={20}
-                color={COLORS.primary}
+                color={colors.primary}
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.input}
                 placeholder="lebron@gmail.com"
-                placeholderTextColor={COLORS.placeholderText}
+                placeholderTextColor={colors.placeholderText}
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -96,13 +98,13 @@ export default function Signup() {
               <Ionicons
                 name="lock-closed-outline"
                 size={20}
-                color={COLORS.primary}
+                color={colors.primary}
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.input}
                 placeholder="******"
-                placeholderTextColor={COLORS.placeholderText}
+                placeholderTextColor={colors.placeholderText}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -114,7 +116,7 @@ export default function Signup() {
                 <Ionicons
                   name={showPassword ? "eye-outline" : "eye-off-outline"}
                   size={20}
-                  color={COLORS.primary}
+                  color={colors.primary}
                 />
               </TouchableOpacity>
             </View>

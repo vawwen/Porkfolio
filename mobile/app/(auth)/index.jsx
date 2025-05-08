@@ -11,8 +11,9 @@ import {
 import styles from "../../assets/styles/login.styles";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import COLORS from "../../constants/colors";
+import { colors } from "../../constants/Theme";
 import { Link } from "expo-router";
+import BackButton from "../../components/BackButton"
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -28,6 +29,7 @@ export default function Login() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={styles.container}>
+        <BackButton />
         <View style={styles.topIllustration}>
           <Image
             source={require("../../assets/images/logo-1.png")}
@@ -47,13 +49,13 @@ export default function Login() {
               <Ionicons
                 name="person-outline"
                 size={20}
-                color={COLORS.primary}
+                color={colors.primary}
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.input}
                 placeholder="Enter your email"
-                placeholderTextColor={COLORS.placeholderText}
+                placeholderTextColor={colors.placeholderText}
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -68,13 +70,13 @@ export default function Login() {
               <Ionicons
                 name="lock-closed-outline"
                 size={20}
-                color={COLORS.primary}
+                color={colors.primary}
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.input}
                 placeholder="Enter your password"
-                placeholderTextColor={COLORS.placeholderText}
+                placeholderTextColor={colors.placeholderText}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -86,7 +88,7 @@ export default function Login() {
                 <Ionicons
                   name={showPassword ? "eye-outline" : "eye-off-outline"}
                   size={20}
-                  color={COLORS.primary}
+                  color={colors.primary}
                 />
               </TouchableOpacity>
             </View>

@@ -10,6 +10,11 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen
+            name="(modals)/profileModal"
+            options={{ presentation: "modal" }}
+          />
         </Stack>
       </SafeScreen>
       <StatusBar style="dark" />
