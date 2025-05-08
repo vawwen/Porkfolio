@@ -1,9 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import Typo from './Typo'
-import { HeaderProps } from '@/types'
 
-const Header = ({ title="", leftIcon, style}: HeaderProps) => {
+const Header = ({ title="", leftIcon, style}) => {
   return (
     <View style={[styles.container, style]}>
       {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}

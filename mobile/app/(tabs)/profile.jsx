@@ -7,11 +7,10 @@ import Header from "@/components/Header";
 import Typo from "@/components/Typo";
 import { Image } from "expo-image";
 import { getProfileImage } from "@/services/imageService";
-import { AccountOptionType } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
-const profile = () => {
+const Profile = () => {
   // TODO
   // const { user }} = getAuth
   const user = {
@@ -19,9 +18,9 @@ const profile = () => {
     email: "john.doe@example.com",
     image: null,
   };
-  const router = useRouter()
+  const router = useRouter();
 
-  const accountOptions: AccountOptionType[] = [
+  const accountOptions = [
     {
       title: "Edit Profile",
       icon: "person",
@@ -50,30 +49,29 @@ const profile = () => {
   ];
 
   const showLogoutAlert = () => {
-    Alert.alert("Confirm", "Are you sure you want to logout?" ,[
+    Alert.alert("Confirm", "Are you sure you want to logout?", [
       {
         text: "Cancel",
-        onPress: () => console.log('cancel logout'),
-        style: 'cancel'
+        onPress: () => console.log("cancel logout"),
+        style: "cancel",
       },
       {
         text: "Logout",
         // TODO
         // onPress: () => handleLogout(),
         onPress: () => console.log("logout press"),
-        style: 'destructive'
-      }
-    ])
-  }
+        style: "destructive",
+      },
+    ]);
+  };
 
-  const handlePress = async (item: AccountOptionType) => {
-    if(item.title == 'Logout') {
+  const handlePress = (item) => {
+    if (item.title === "Logout") {
       showLogoutAlert();
-    }
-    if(item.title) {
+    } else {
       router.push(item.routeName);
     }
-  }
+  };
 
   return (
     <ScreenWrapper>
@@ -104,26 +102,26 @@ const profile = () => {
 
           {/* Account Options */}
           <View style={styles.optionsContainer}>
-            {accountOptions.map((item, index) => {
-              return (
-                // <View key={index.toString()} style={styles.listItem}>
-                  <TouchableOpacity key={index.toString()} style={styles.optionCard} onPress={() => handlePress(item)}>
-                    {/* Icon */}
-                    <View style={styles.optionContent}>
-                      <Ionicons
-                        name={item.icon as any}
-                        size={24}
-                        color={colors.primaryDark}
-                        style={styles.optionIcon}
-                      />
-                      <Typo size={16} fontWeight={"500"}>
-                        {item.title}
-                      </Typo>
-                    </View>
-                  </TouchableOpacity>
-                // </View>
-              );
-            })}
+            {accountOptions.map((item, index) => (
+              <TouchableOpacity
+                key={index.toString()}
+                style={styles.optionCard}
+                onPress={() => handlePress(item)}
+              >
+                {/* Icon */}
+                <View style={styles.optionContent}>
+                  <Ionicons
+                    name={item.icon}
+                    size={24}
+                    color={colors.primaryDark}
+                    style={styles.optionIcon}
+                  />
+                  <Typo size={16} fontWeight={"500"}>
+                    {item.title}
+                  </Typo>
+                </View>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
       </View>
@@ -131,25 +129,16 @@ const profile = () => {
   );
 };
 
-export default profile;
+export default Profile;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: spacingX._20,
   },
-  // userInfo: {
-  //   marginTop: verticalScale(30),
-  //   alignItems: "center",
-  //   gap: spacingY._15,
-  // },
   profileSection: {
     alignItems: "center",
     marginBottom: spacingY._30,
-  },
-  avatarContainer: {
-    position: "relative",
-    alignSelf: "center",
   },
   avatar: {
     alignSelf: "center",
@@ -157,19 +146,18 @@ const styles = StyleSheet.create({
     height: verticalScale(135),
     width: verticalScale(135),
     borderRadius: 200,
-    // overflow: "hidden",
-    // position: "relative",
   },
   userInfo: {
     alignItems: "center",
-    marginBottom: spacingY._30,
+    marginVertical: spacingY._30,
+    gap: spacingY._5,
   },
   optionsContainer: {
-    width: '100%',
+    width: "100%",
     gap: spacingY._15,
   },
   optionCard: {
-    width: '100%',
+    width: "100%",
     backgroundColor: colors.cardBackground,
     borderRadius: radius._20,
     paddingVertical: spacingY._15,
@@ -181,12 +169,12 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   optionContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: spacingX._15,
   },
   optionIcon: {
     width: 24,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });
