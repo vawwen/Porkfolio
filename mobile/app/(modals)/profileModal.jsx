@@ -18,7 +18,6 @@ import { Image } from "expo-image";
 import { getProfileImage } from "@/services/imageService";
 import { Ionicons } from "@expo/vector-icons";
 import Typo from "@/components/Typo";
-import { UserDataType } from "@/types";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
