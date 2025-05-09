@@ -20,11 +20,9 @@ export default function RootLayout() {
     const isSignedIn = !!user && !!token;
 
     if (!isSignedIn && !inAuthScreen) {
-      if (segments[0] === "(tabs)") {
-        router.replace("..");
-      } else {
-        router.replace("/");
-      }
+    
+        router.replace("/(auth)/welcome");
+      
     } else if (isSignedIn && inAuthScreen) {
       router.replace("/(tabs)");
     }

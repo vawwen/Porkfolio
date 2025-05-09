@@ -39,7 +39,7 @@ const Profile = () => {
     {
       title: "Logout",
       icon: "log-out-outline",
-      routeName: "/logout",
+      routeName: "/(auth)/welcome",
     },
   ];
 
@@ -62,7 +62,7 @@ const Profile = () => {
     if (item.title === "Logout") {
       showLogoutAlert();
     } else {
-      router.push(item.routeName);
+      // router.push(item.routeName);
     }
   };
 

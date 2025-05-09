@@ -1,86 +1,38 @@
-import { Link, useRouter } from "expo-router";
-import Button from "@/components/Button";
-import ScreenWrapper from "@/components/ScreenWrapper";
-import Typo from "@/components/Typo";
-import { colors, spacingX, spacingY } from "@/constants/Theme";
-import { verticalScale } from "@/utils/styling";
-import React from "react";
-import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { colors } from '@/constants/Theme';
+import { useRouter } from 'expo-router';
+import React, { useEffect } from 'react';
+import { Image, StyleSheet, View } from 'react-native';
 
-const welcome = () => {
-  const router = useRouter();
+const index = () => {
+    const router = useRouter();
+    useEffect(() => {
+        setTimeout(() => {
+            router.push('/(auth)/welcome')
+        }, 500);
+    }, []);
+
   return (
-    <ScreenWrapper>
-      <View style={styles.container}>
-        {/* Login button & image */}
-        <TouchableOpacity
-          onPress={() => router.push("/(auth)")}
-          style={styles.loginButton}
-        >
-          <Typo fontWeight={500}> Log In </Typo>
-        </TouchableOpacity>
-
-        <Image
-          source={require("../assets/images/logo-1.png")}
-          style={styles.welcomeImage}
-          resizeMode="contain"
+    <View style={styles.container}>
+        <Image 
+            style = {styles.logo}
+            resizeMode= "contain"
+            source = {require("../assets/images/i.png")}
         />
-      </View>
-
-      {/* footer */}
-      <View style={styles.footer}>
-        <View style={{ alignItems: "center" }}>
-          <Typo size={30} fontWeight={"800"}>
-            Porkfolio
-          </Typo>
-        </View>
-
-        <View style={{ alignItems: "center", gap: 2 }}>
-          <Typo size={17} color={colors.textSecondary}>
-            An app to help you track and
-          </Typo>
-          <Typo size={17} color={colors.textSecondary}>
-            manage your finances
-          </Typo>
-        </View>
-
-        <View style={styles.buttonContainer}>
-          <Button onPress={() => router.push("/(auth)/signup")}>
-            <Typo fontWeight={600}> Get Started </Typo>
-          </Button>
-        </View>
-      </View>
-    </ScreenWrapper>
+    </View>
   );
 };
 
-export default welcome;
+export default index;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "space-between",
-  },
-  welcomeImage: {
-    width: "100%",
-    height: verticalScale(300),
-    alignSelf: "center",
-    marginTop: verticalScale(100),
-  },
-  loginButton: {
-    alignSelf: "flex-end",
-    marginRight: spacingX._20,
-  },
-  footer: {
-    backgroundColor: colors.cardBackground,
-    alignItems: "center",
-    paddingTop: verticalScale(30),
-    paddingBottom: verticalScale(45),
-    gap: spacingY._20,
-    elevation: 10,
-  },
-  buttonContainer: {
-    width: "100%",
-    paddingHorizontal: spacingX._25,
-  },
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.white,
+    },
+    logo: {
+        height: "20%",
+        aspectRatio: 1,
+    }
 });
