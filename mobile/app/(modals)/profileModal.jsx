@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { colors, spacingX, spacingY } from "@/constants/Theme";
 import { scale, verticalScale } from "@/utils/styling";
 import ScreenWrapper from "@/components/ScreenWrapper";
@@ -18,17 +18,32 @@ import { Image } from "expo-image";
 import { getProfileImage } from "@/services/imageService";
 import { Ionicons } from "@expo/vector-icons";
 import Typo from "@/components/Typo";
-import { UserDataType } from "@/types";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 
 const profileModal = () => {
+  //TODO
+  // const user = useAuth()
+  const user = {
+    name: "John Doe",
+    email: "john.doe@example.com",
+    image: null,
+  };
+
   const router = useRouter();
   const [userData, setUserData] = useState({
     name: "",
     image: null,
   });
+
+  useEffect(() => {
+    setUserData({
+      name: user?.name || "",
+      image: user?.image || null
+    });
+  }, [user?.name, user?.image]);
+
   const onSubmit = async () => {
     let { name, image } = userData;
     if (!name.trim()) {
@@ -40,6 +55,19 @@ const profileModal = () => {
     //after finish close modal
     router.back();
   };
+
+  const onPickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setUserData({...userData, image: result.assets[0]});
+    }
+  }
 
   return (
     <ModalWrapper>
@@ -59,7 +87,7 @@ const profileModal = () => {
               transition={100}
             />
 
-            <TouchableOpacity style={styles.editIcon}>
+            <TouchableOpacity onPress={onPickImage} style={styles.editIcon}>
               <Ionicons
                 name="pencil-outline"
                 size={verticalScale(20)}
