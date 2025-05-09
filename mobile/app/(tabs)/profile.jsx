@@ -1,5 +1,5 @@
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { colors, radius, spacingX, spacingY } from "@/constants/Theme";
 import { verticalScale } from "@/utils/styling";
@@ -35,6 +35,11 @@ const Profile = () => {
       title: "Budget Allocation",
       icon: "pie-chart-outline",
       routeName: "/(modals)/budgetModal",
+    },
+    {
+      title: "Transaction Types",
+      icon: "swap-horizontal",
+      routeName: "/(modals)/typeModal",
     },
     {
       title: "Logout",
@@ -152,7 +157,7 @@ const styles = StyleSheet.create({
   optionCard: {
     width: "100%",
     backgroundColor: colors.cardBackground,
-    borderRadius: radius._20,
+    borderRadius: 10,
     paddingVertical: spacingY._15,
     paddingHorizontal: spacingX._20,
     shadowColor: "#000",

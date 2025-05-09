@@ -7,10 +7,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import { colors, spacingX, spacingY } from "@/constants/Theme";
-import { scale, verticalScale } from "@/utils/styling";
-import ScreenWrapper from "@/components/ScreenWrapper";
+import { useEffect, useState } from "react";
+import { colors, spacingY } from "@/constants/Theme";
+import { verticalScale } from "@/utils/styling";
 import ModalWrapper from "@/components/ModalWrapper";
 import Header from "@/components/Header";
 import BackButton from "@/components/BackButton";
@@ -21,15 +20,11 @@ import Typo from "@/components/Typo";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+import { useAuthStore } from "../../store/authStore";
+import styles from "../../assets/styles/modals.styles";
 
 const profileModal = () => {
-  //TODO
-  // const user = useAuth()
-  const user = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    image: null,
-  };
+  const { user } = useAuthStore();
 
   const router = useRouter();
   const [userData, setUserData] = useState({
@@ -39,8 +34,8 @@ const profileModal = () => {
 
   useEffect(() => {
     setUserData({
-      name: user?.name || "",
-      image: user?.image || null
+      name: user?.username || "",
+      image: user?.profileImage || null,
     });
   }, [user?.name, user?.image]);
 
@@ -58,16 +53,16 @@ const profileModal = () => {
 
   const onPickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
+      mediaTypes: ["images"],
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
     });
 
     if (!result.canceled) {
-      setUserData({...userData, image: result.assets[0]});
+      setUserData({ ...userData, image: result.assets[0] });
     }
-  }
+  };
 
   return (
     <ModalWrapper>
@@ -122,76 +117,3 @@ const profileModal = () => {
 };
 
 export default profileModal;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "space-between",
-    paddingHorizontal: spacingY._20,
-    // paddingVertical: spacingY._30,
-  },
-  footer: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "center",
-    paddingHorizontal: spacingX._20,
-    gap: scale(12),
-    paddingTop: spacingY._15,
-    borderTopColor: colors.primary,
-    marginBottom: spacingY._5,
-    borderTopWidth: 1,
-  },
-  form: {
-    gap: spacingY._30,
-    marginTop: spacingY._15,
-  },
-  avatarContainer: {
-    position: "relative",
-    alignSelf: "center",
-  },
-  avatar: {
-    alignSelf: "center",
-    backgroundColor: colors.black,
-    height: verticalScale(135),
-    width: verticalScale(135),
-    borderRadius: 200,
-    // borderWidth: 1,
-    // borderColor: colors.black,
-    // overflow: "hidden",
-    // position: "relative",
-  },
-  editIcon: {
-    position: "absolute",
-    bottom: spacingY._5,
-    right: spacingY._7,
-    borderRadius: 100,
-    backgroundColor: colors.cardBackground,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 4,
-    padding: spacingY._7,
-  },
-  input: {
-    flex: 1,
-    height: 48,
-    color: colors.textDark,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.inputBackground,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: 12,
-  },
-  label: {
-    fontSize: 14,
-    marginBottom: 8,
-    color: colors.textSecondary,
-    fontWeight: "500",
-  },
-  inputGroup: { marginBottom: 20 },
-});

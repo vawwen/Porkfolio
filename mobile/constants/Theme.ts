@@ -15,8 +15,10 @@ export const colors = {
   white: "#FFFFFF",
   black: "#000000",
   accent: "#B57BFF",
-  error: "#FF3B30",
-  success: "#4CD964",
+  error: "#F44336",
+  success: "#4CAF50",
+  successOverlay: "#E8F5E9",
+  errorOverlay: "#FFEBEE"
 };
 
 export const spacingX = {

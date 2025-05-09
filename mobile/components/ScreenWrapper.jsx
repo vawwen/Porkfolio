@@ -11,7 +11,7 @@ import {
 const { height } = Dimensions.get("window");
 
 const ScreenWrapper = ({ style, children }) => {
-  const paddingTop = Platform.OS === "ios" ? height * 0.03 : 50;
+  const paddingTop = Platform.OS === "ios" ? height * 0.03 : 0;
 
   return (
     <View

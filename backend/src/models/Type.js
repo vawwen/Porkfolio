@@ -11,7 +11,7 @@ const typeSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    class: {
+    category: {
       type: String,
       required: true,
     },

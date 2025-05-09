@@ -1,21 +1,17 @@
-import { Platform, StyleSheet, Text, View } from "react-native";
-import React from "react";
-import { colors, spacingY } from "@/constants/Theme";
+import { KeyboardAvoidingView } from "react-native";
+import { colors } from "@/constants/Theme";
+import styles from "../assets/styles/modals.styles";
 
-const ModalWrapper = ({ style, children, bg = colors.background }) => {
+export default function ModalWrapper({
+  style = styles.wrapper,
+  children,
+  bg = colors.background,
+}) {
   return (
-    <View style={[styles.container, { backgroundColor: bg }, style && style]}>
+    <KeyboardAvoidingView
+      style={[styles.wrapper, { backgroundColor: bg }, style && style]}
+    >
       {children}
-    </View>
+    </KeyboardAvoidingView>
   );
-};
-
-export default ModalWrapper;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: Platform.OS == "ios" ? spacingY._15 : 50,
-    paddingBottom: Platform.OS == "ios" ? spacingY._20 : spacingY._10,
-  },
-});
+}

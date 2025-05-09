@@ -15,7 +15,7 @@ import { colors } from "../../constants/Theme";
 import { useState } from "react";
 import { router } from "expo-router";
 import { useAuthStore } from "../../store/authStore";
-import BackButton from "../../components/BackButton"
+import BackButton from "../../components/BackButton";
 
 export default function Signup() {
   const [username, setUsername] = useState("");

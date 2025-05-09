@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     marginBottom: 8,
-    color: colors.textPrimary,
+    color: colors.textSecondary,
     fontWeight: "500",
   },
   inputContainer: {
