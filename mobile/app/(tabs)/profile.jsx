@@ -9,15 +9,10 @@ import { Image } from "expo-image";
 import { getProfileImage } from "@/services/imageService";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useAuthStore } from "../../store/authStore";
 
 const Profile = () => {
-  // TODO
-  // const { user }} = getAuth
-  const user = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    image: null,
-  };
+  const { user, logout } = useAuthStore();
   const router = useRouter();
 
   const accountOptions = [
@@ -57,9 +52,7 @@ const Profile = () => {
       },
       {
         text: "Logout",
-        // TODO
-        // onPress: () => handleLogout(),
-        onPress: () => console.log("logout press"),
+        onPress: logout,
         style: "destructive",
       },
     ]);
@@ -83,7 +76,7 @@ const Profile = () => {
           {/* Avatar */}
           <View>
             <Image
-              source={getProfileImage(user?.image)}
+              source={user?.profileImage}
               style={styles.avatar}
               contentFit="cover"
               transition={100}
@@ -93,7 +86,7 @@ const Profile = () => {
           {/* Name & email */}
           <View style={styles.userInfo}>
             <Typo size={24} fontWeight={600} color={colors.textPrimary}>
-              {user?.name}
+              {user?.username}
             </Typo>
             <Typo size={15} fontWeight={600} color={colors.textSecondary}>
               {user?.email}
