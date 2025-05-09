@@ -17,6 +17,7 @@ export const colors = {
   accent: "#B57BFF",
   error: "#FF3B30",
   success: "#4CD964",
+  neutralLight: "#F2F2F2",
 };
 
 export const spacingX = {
