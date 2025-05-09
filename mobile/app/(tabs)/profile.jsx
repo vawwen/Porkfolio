@@ -62,7 +62,7 @@ const Profile = () => {
     if (item.title === "Logout") {
       showLogoutAlert();
     } else {
-      // router.push(item.routeName);
+      router.push(item.routeName);
     }
   };
 
