@@ -9,7 +9,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: colors.background,
     padding: 20,
-    justifyContent: "center",
+    justifyContent: "flex-start",
   },
   scrollViewStyle: {
     flex: 1,

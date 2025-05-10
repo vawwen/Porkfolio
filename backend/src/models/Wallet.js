@@ -13,6 +13,9 @@ const walletSchema = new mongoose.Schema(
     limit: {
       type: Number,
     },
+    balance: {
+      type: Number,
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

@@ -1,0 +1,127 @@
+import { StyleSheet } from "react-native";
+import { colors, spacingX, spacingY, radius } from "@/constants/Theme";
+import { verticalScale } from "@/utils/styling";
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "space-between",
+  },
+  balanceView: {
+    height: verticalScale(160),
+    backgroundColor: colors.background,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  flexRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacingY._10,
+  },
+  wallets: {
+    flex: 1,
+    backgroundColor: colors.neutralLight,
+    borderTopRightRadius: radius._30,
+    borderTopLeftRadius: radius._30,
+    padding: spacingX._20,
+    paddingTop: spacingX._25,
+  },
+  listStyle: {
+    paddingVertical: spacingY._25,
+    paddingTop: spacingY._15,
+  },
+  circleStyle: {
+    width: verticalScale(40),
+    height: verticalScale(40),
+    borderRadius: verticalScale(20),
+    backgroundColor: colors.primaryDark,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  walletsList: {
+    display: "flex",
+    flexDirection: "column",
+    flex: 1,
+    backgroundColor: colors.neutralLight,
+    padding: 16,
+  },
+  balanceLoading: { height: 50, justifyContent: "center" },
+  balance: { fontSize: 45, fontWeight: 500 },
+  balanceSubtitle: { fontSize: 16, color: colors.secondary },
+  walletItem: {
+    display: "flex",
+    flexDirection: "row",
+    width: "100%",
+    height: 200,
+    backgroundColor: "white",
+    borderRadius: 10,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  walletLogoWrapper: {
+    width: "100%",
+    height: "20%",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
+  walletLogo: { height: "100%", aspectRatio: 1 },
+  walletName: {
+    width: "100%",
+    height: "40%",
+    fontSize: 24,
+    fontWeight: 800,
+    color: colors.textPrimary,
+  },
+  walletSubtitle: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "flex-end",
+    width: "100%",
+    height: "10%",
+    fontSize: 12,
+    color: colors.textSecondary,
+  },
+  walletBalance: {
+    width: "100%",
+    height: "20%",
+    fontSize: 24,
+    fontWeight: 800,
+  },
+  listLoading: {
+    display: "flex",
+    width: "100%",
+    height: 200,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  exceedLimit: {
+    color: colors.error,
+  },
+  walletRight: {
+    width: "50%",
+    height: "100%",
+    overflow: "hidden",
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+  walletLeft: {
+    width: "50%",
+    height: "100%",
+    overflow: "hidden",
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
+    display: "flex",
+    flexDirection: "column",
+    padding: 10,
+  },
+});
+
+export default styles;

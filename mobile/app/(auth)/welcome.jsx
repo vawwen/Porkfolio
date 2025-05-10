@@ -1,11 +1,10 @@
-import { Link, useRouter } from "expo-router";
-import Button from "@/components/Button";
+import { useRouter } from "expo-router";
 import ScreenWrapper from "@/components/ScreenWrapper";
-import Typo from "@/components/Typo";
-import { colors, spacingX, spacingY } from "@/constants/Theme";
+import { colors, spacingX, spacingY, radius } from "@/constants/Theme";
 import { verticalScale } from "@/utils/styling";
 import React from "react";
-import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, TouchableOpacity, View, Text } from "react-native";
+import logo from "../../assets/images/logo-1.png";
 
 const welcome = () => {
   const router = useRouter();
@@ -17,40 +16,30 @@ const welcome = () => {
           onPress={() => router.push("/(auth)")}
           style={styles.loginButton}
         >
-          <Typo fontWeight={500}> Log In </Typo>
+          <Text style={styles.buttonText}>Log in</Text>
         </TouchableOpacity>
 
-        <Image
-          source={require("../../assets/images/logo-1.png")}
-          style={styles.welcomeImage}
-          resizeMode="contain"
-        />
+        <Image source={logo} style={styles.welcomeImage} resizeMode="contain" />
       </View>
 
       {/* footer */}
       <View style={styles.footer}>
         <View style={{ alignItems: "center" }}>
-          <Typo size={30} fontWeight={"800"}>
-            Porkfolio
-          </Typo>
+          <Text style={styles.porkfolio}>Porkfolio</Text>
         </View>
 
         <View style={{ alignItems: "center", gap: 2 }}>
-          <Typo size={17} color={colors.textSecondary}>
-            An app to help you track and
-          </Typo>
-          <Typo size={17} color={colors.textSecondary}>
-            manage your finances
-          </Typo>
+          <Text style={styles.subtitle}>An app to help you track and</Text>
+          <Text style={styles.subtitle}>manage your finances</Text>
         </View>
 
         <View style={styles.buttonContainer}>
-          <Button onPress={() => router.push("/(auth)/signup")}>
-            <Typo fontWeight={600} color={colors.white}>
-              {" "}
-              Get Started{" "}
-            </Typo>
-          </Button>
+          <TouchableOpacity
+            onPress={() => router.push("/(auth)/signup")}
+            style={styles.button}
+          >
+            <Text style={styles.buttonText}>Get Started</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ScreenWrapper>
@@ -73,6 +62,9 @@ const styles = StyleSheet.create({
   loginButton: {
     alignSelf: "flex-end",
     marginRight: spacingX._20,
+    backgroundColor: colors.primary,
+    padding: 10,
+    borderRadius: 10,
   },
   footer: {
     backgroundColor: colors.cardBackground,
@@ -86,4 +78,14 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: spacingX._25,
   },
+  button: {
+    backgroundColor: colors.primary,
+    borderRadius: radius._17,
+    height: verticalScale(52),
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  buttonText: { fontWeight: 600, color: colors.white, fontSize: 16 },
+  porkfolio: { fontSize: 30, fontWeight: 800 },
+  subtitle: { fontSize: 17, color: colors.secondary },
 });

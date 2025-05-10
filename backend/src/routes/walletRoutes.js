@@ -29,6 +29,7 @@ router.post("/", protectRoute, async (req, res) => {
       name,
       icon: imageUrl,
       limit,
+      balance: 0,
       user: req.user._id,
     });
 
@@ -64,10 +65,24 @@ router.put("/:id", protectRoute, async (req, res) => {
       return res.status(404).json({ message: "Wallet not found" });
     }
 
+    let imageUrl = existingWallet.icon;
+    if (existingWallet.icon !== icon) {
+      if (existingWallet.icon && existingWallet.icon.includes("cloudinary")) {
+        try {
+          const publicId = existingWallet.icon.split("/").pop().split(".")[0];
+          await cloudinary.uploader.destroy(publicId);
+        } catch (deleteError) {
+          console.log("Error deleting icon from cloudinary", deleteError);
+        }
+      }
+      const uploadRes = await cloudinary.uploader.upload(icon);
+      imageUrl = uploadRes.secure_url;
+    }
+
     // Update the wallet
     const updatedWallet = await Wallet.findByIdAndUpdate(
       id,
-      { name, icon, limit },
+      { name, icon: imageUrl, limit, balance: existingWallet.balance },
       { new: true, runValidators: true }
     );
 

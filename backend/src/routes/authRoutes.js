@@ -128,6 +128,17 @@ router.put("/", protectRoute, async (req, res) => {
 
     let imageUrl = userData.profileImage;
     if (userData.profileImage !== profileImage) {
+      if (
+        userData.profileImage &&
+        userData.profileImage.includes("cloudinary")
+      ) {
+        try {
+          const publicId = userData.profileImage.split("/").pop().split(".")[0];
+          await cloudinary.uploader.destroy(publicId);
+        } catch (deleteError) {
+          console.log("Error deleting icon from cloudinary", deleteError);
+        }
+      }
       const uploadRes = await cloudinary.uploader.upload(profileImage);
       imageUrl = uploadRes.secure_url;
     }

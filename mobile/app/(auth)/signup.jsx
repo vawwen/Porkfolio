@@ -16,6 +16,7 @@ import { useState } from "react";
 import { router } from "expo-router";
 import { useAuthStore } from "../../store/authStore";
 import BackButton from "../../components/BackButton";
+import illustrationImage from "../../assets/images/i.png";
 
 export default function Signup() {
   const [username, setUsername] = useState("");
@@ -38,9 +39,10 @@ export default function Signup() {
     >
       <View style={styles.container}>
         <BackButton />
+        <View style={{ flex: 0.3 }} />
         <View style={styles.header}>
           <Image
-            source={require("../../assets/images/i.png")}
+            source={illustrationImage}
             style={styles.illustrationImage}
             resizeMode="contain"
           />

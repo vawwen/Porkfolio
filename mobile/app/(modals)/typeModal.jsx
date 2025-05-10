@@ -20,7 +20,7 @@ import { ProfileIcons } from "../../constants/constants";
 import IncomeExpenseToggle from "../../components/IncomeExpenseToggle";
 import { API_URL } from "../../constants/api";
 
-export default function profileModal() {
+export default function typeModal() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const item = useMemo(() => {

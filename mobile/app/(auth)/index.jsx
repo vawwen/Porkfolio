@@ -16,7 +16,7 @@ import { colors } from "../../constants/Theme";
 import { Link } from "expo-router";
 import BackButton from "../../components/BackButton";
 import { useAuthStore } from "../../store/authStore";
-import { useEffect } from "react";
+import logo from "../../assets/images/logo-1.png";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -37,9 +37,10 @@ export default function Login() {
     >
       <View style={styles.container}>
         <BackButton />
+        <View style={{ flex: 0.3 }} />
         <View style={styles.topIllustration}>
           <Image
-            source={require("../../assets/images/logo-1.png")}
+            source={logo}
             style={styles.illustrationImage}
             resizeMode="contain"
           />

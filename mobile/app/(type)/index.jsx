@@ -186,7 +186,7 @@ export default function Type() {
         </TouchableOpacity>
       </View>
       {isLoading ? (
-        <ActivityIndicator style={{ flex: 1 }} />
+        <ActivityIndicator style={{ flex: 1 }} color={colors.primary} />
       ) : (
         <FlatList
           data={types}
