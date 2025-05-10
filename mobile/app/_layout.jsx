@@ -56,6 +56,10 @@ export default function RootLayout() {
                 Platform.OS === "android" ? "slide_from_right" : undefined,
             }}
           />
+          <Stack.Screen
+            name="(modals)/walletModal"
+            options={{ presentation: "modal" }}
+          />
         </Stack>
       </SafeScreen>
       <StatusBar style="dark" />

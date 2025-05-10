@@ -18,7 +18,8 @@ export const colors = {
   error: "#F44336",
   success: "#4CAF50",
   successOverlay: "#E8F5E9",
-  errorOverlay: "#FFEBEE"
+  errorOverlay: "#FFEBEE",
+  neutralLight: "#F2F2F2",
 };
 
 export const spacingX = {
