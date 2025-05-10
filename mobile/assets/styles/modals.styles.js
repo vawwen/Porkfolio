@@ -8,13 +8,14 @@ const { width, height } = Dimensions.get("window");
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    paddingTop: Platform.OS == "ios" ? height * 0.03 : height * 0.035,
+    paddingTop: Platform.OS == "ios" ? height * 0.03 : 0,
     paddingBottom: Platform.OS == "ios" ? spacingY._20 : spacingY._10,
   },
   container: {
     flex: 1,
     justifyContent: "space-between",
-    paddingHorizontal: spacingY._10,
+    // paddingHorizontal: spacingY._10,
+    width: "100%",
     // paddingVertical: spacingY._30,
   },
   footer: {
@@ -27,10 +28,6 @@ const styles = StyleSheet.create({
     borderTopColor: colors.primary,
     marginBottom: spacingY._5,
     borderTopWidth: 1,
-  },
-  form: {
-    gap: spacingY._30,
-    marginTop: spacingY._15,
   },
   avatarContainer: {
     position: "relative",
@@ -60,11 +57,43 @@ const styles = StyleSheet.create({
     elevation: 4,
     padding: spacingY._7,
   },
-  input: {
-    flex: 1,
-    height: 48,
-    color: colors.textDark,
+  label: {
+    fontSize: 14,
+    marginBottom: 8,
+    color: colors.textSecondary,
+    fontWeight: "500",
   },
+  inputGroup: { marginBottom: 20 },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 20,
+  },
+  closeButton: {
+    marginRight: 15,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    flex: 1,
+  },
+  scrollContentContainer: {
+    flexGrow: 1,
+    backgroundColor: colors.background,
+    padding: 16,
+  },
+  scrollViewStyle: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  form: {
+    marginBottom: 16,
+  },
+  placeholderText: {
+    color: colors.textSecondary,
+    marginTop: 8,
+  },
+
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -74,13 +103,134 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     paddingHorizontal: 12,
   },
-  label: {
+  inputIcon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    height: 48,
+    color: colors.textDark,
+  },
+  button: {
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+    height: 50,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 16,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  buttonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  content: {
+    flex: 1,
+    padding: 20,
+    paddingTop: 0,
+  },
+  option: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  iconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 15,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  optionText: {
+    fontSize: 18,
+    fontWeight: "500",
+    marginBottom: 4,
+  },
+  optionSubtext: {
     fontSize: 14,
-    marginBottom: 8,
     color: colors.textSecondary,
+  },
+  footerContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 16,
+    backgroundColor: "white",
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+  },
+  imagePicker: {
+    width: "100%",
+    height: 200,
+    backgroundColor: colors.inputBackground,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: "hidden",
+  },
+  iconPicker: {
+    display: "flex",
+    flex: 1,
+    width: "100%",
+    backgroundColor: colors.inputBackground,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: "hidden",
+  },
+  previewImage: {
+    width: "100%",
+    height: "100%",
+  },
+  formGroup: {
+    marginBottom: 20,
+  },
+  categoryButton: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    width: "20%",
+    justifyContent: "center",
+    height: "auto",
+    padding: 5,
+    marginBottom: 15,
+    marginTop: 15,
+    color: colors.textSecondary,
+  },
+  selectedButton: {
+    backgroundColor: "rgba(177, 140, 229, 0.2)",
+    borderWidth: 1,
+    borderColor: colors.primaryDark,
+    borderRadius: 10,
+  },
+  categoryText: {
+    marginTop: 8,
+    fontSize: 12,
+    textAlign: "center",
+    color: colors.textSecondary,
+  },
+  selectedText: {
+    color: colors.primaryDark,
     fontWeight: "500",
   },
-  inputGroup: { marginBottom: 20 },
+  deleteButton: {
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
 
 export default styles;

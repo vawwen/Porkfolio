@@ -23,7 +23,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useAuthStore } from "../../store/authStore";
 import styles from "../../assets/styles/modals.styles";
 
-const profileModal = () => {
+export default function profileModal() {
   const { user } = useAuthStore();
 
   const router = useRouter();
@@ -114,6 +114,4 @@ const profileModal = () => {
       </View>
     </ModalWrapper>
   );
-};
-
-export default profileModal;
+}

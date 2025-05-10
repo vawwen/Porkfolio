@@ -1,17 +1,22 @@
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React, { useState } from "react";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { colors, radius, spacingX, spacingY } from "@/constants/Theme";
 import { verticalScale } from "@/utils/styling";
-import Header from "@/components/Header";
-import Typo from "@/components/Typo";
 import { Image } from "expo-image";
 import { getProfileImage } from "@/services/imageService";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "../../store/authStore";
 
-const Profile = () => {
+export default function Profile() {
   const { user, logout } = useAuthStore();
   const router = useRouter();
 
@@ -39,7 +44,7 @@ const Profile = () => {
     {
       title: "Transaction Types",
       icon: "swap-horizontal",
-      routeName: "/(modals)/typeModal",
+      routeName: "/(type)",
     },
     {
       title: "Logout",
@@ -74,8 +79,9 @@ const Profile = () => {
   return (
     <ScreenWrapper>
       <View style={styles.container}>
-        <Header title="Profile" style={{ marginVertical: spacingY._10 }} />
-
+        <View style={styles.header}>
+          <Text style={styles.title}>Profile</Text>
+        </View>
         {/* User Information */}
         <View style={styles.profileSection}>
           {/* Avatar */}
@@ -90,53 +96,87 @@ const Profile = () => {
 
           {/* Name & email */}
           <View style={styles.userInfo}>
-            <Typo size={24} fontWeight={600} color={colors.textPrimary}>
-              {user?.username}
-            </Typo>
-            <Typo size={15} fontWeight={600} color={colors.textSecondary}>
-              {user?.email}
-            </Typo>
-          </View>
-
-          {/* Account Options */}
-          <View style={styles.optionsContainer}>
-            {accountOptions.map((item, index) => (
-              <TouchableOpacity
-                key={index.toString()}
-                style={styles.optionCard}
-                onPress={() => handlePress(item)}
-              >
-                {/* Icon */}
-                <View style={styles.optionContent}>
-                  <Ionicons
-                    name={item.icon}
-                    size={24}
-                    color={colors.primaryDark}
-                    style={styles.optionIcon}
-                  />
-                  <Typo size={16} fontWeight={"500"}>
-                    {item.title}
-                  </Typo>
-                </View>
-              </TouchableOpacity>
-            ))}
+            <Text style={styles.name}>{user?.username}</Text>
+            <Text style={styles.email}>{user?.username}</Text>
           </View>
         </View>
+
+        {/* Options */}
+        <ScrollView
+          style={styles.optionsList}
+          contentContainerStyle={{ paddingBottom: 30 }}
+        >
+          {accountOptions.map((item, index) => (
+            <TouchableOpacity
+              key={index.toString()}
+              style={styles.optionsCard}
+              onPress={() => handlePress(item)}
+            >
+              <Ionicons name={item.icon} size={30} color={colors.primaryDark} />
+              <Text style={styles.optionsLabel}>{item.title}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
     </ScreenWrapper>
   );
-};
-
-export default Profile;
+}
 
 const styles = StyleSheet.create({
   container: {
+    flexGrow: 1,
+    backgroundColor: colors.background,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 20,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
     flex: 1,
-    paddingHorizontal: spacingX._20,
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: 600,
+    color: colors.textPrimary,
+  },
+  email: {
+    fontSize: 15,
+    fontWeight: 500,
+    color: colors.textSecondary,
+  },
+  optionsList: {
+    display: "flex",
+    flexDirection: "column",
+    flex: 1,
+    backgroundColor: colors.white,
+    padding: 16,
+  },
+  optionsCard: {
+    backgroundColor: colors.cardBackground,
+    padding: 10,
+    marginBottom: 10,
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    gap: 12,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderRadius: 10,
+  },
+  optionsLabel: {
+    fontSize: 16,
+    fontWeight: 500,
+    color: colors.textDark,
   },
   profileSection: {
     alignItems: "center",
-    marginBottom: spacingY._30,
   },
   avatar: {
     alignSelf: "center",
@@ -149,30 +189,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginVertical: spacingY._30,
     gap: spacingY._5,
-  },
-  optionsContainer: {
-    width: "100%",
-    gap: spacingY._15,
-  },
-  optionCard: {
-    width: "100%",
-    backgroundColor: colors.cardBackground,
-    borderRadius: 10,
-    paddingVertical: spacingY._15,
-    paddingHorizontal: spacingX._20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  optionContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacingX._15,
-  },
-  optionIcon: {
-    width: 24,
-    textAlign: "center",
   },
 });

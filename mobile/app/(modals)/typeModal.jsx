@@ -1,309 +1,336 @@
-import { useEffect, useState } from "react";
 import {
-  Modal,
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
+  Alert,
   Dimensions,
-  KeyboardAvoidingView,
-  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
   ActivityIndicator,
-  FlatList,
 } from "react-native";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import { useEffect, useState, useMemo } from "react";
+import { colors } from "@/constants/Theme";
 import { verticalScale } from "@/utils/styling";
-import { colors } from "../../constants/Theme";
-import { useRouter } from "expo-router";
+import ModalWrapper from "@/components/ModalWrapper";
+import { Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useAuthStore } from "../../store/authStore";
+import styles from "../../assets/styles/modals.styles";
+import { ProfileIcons } from "../../constants/constants";
+import IncomeExpenseToggle from "../../components/IncomeExpenseToggle";
 import { API_URL } from "../../constants/api";
-import AddTypeModal from "../../components/AddTypeModal";
 
-const { width } = Dimensions.get("window");
-
-export default function TypeModal({ isVisible }) {
+export default function profileModal() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const item = useMemo(() => {
+    return params?.data ? JSON.parse(params.data) : null;
+  }, [params?.data]);
+  const icons = ProfileIcons;
+
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("income");
+  const [isLoading, setIsLoading] = useState(false);
+
   const { token } = useAuthStore();
+
+  const handleCategoryChange = (option) => {
+    setCategory(option);
+  };
+
+  // Add new type
+  const handleSubmit = async () => {
+    if (!name || !selectedCategory) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+    try {
+      setIsLoading(true);
+
+      const response = await fetch(`${API_URL}/type`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          category,
+          icon: selectedCategory.icon,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.message || "Something went wrong");
+
+      Alert.alert("Success", "You can now use your new type!");
+
+      resetModal();
+      onClose();
+    } catch (error) {
+      console.error("Error adding type:", error);
+      Alert.alert("Error", error.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Edit type
+  const handleUpdate = async () => {
+    try {
+      setIsLoading(true);
+
+      if (!name || !selectedCategory) {
+        Alert.alert("Error", "Please fill in all fields");
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/type/${item._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name,
+          category,
+          icon: selectedCategory.icon,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.message || "Something went wrong");
+
+      Alert.alert("Success", "You successfully edited the type!");
+
+      resetModal();
+      onClose();
+    } catch (error) {
+      console.error("Error editing type:", error);
+      Alert.alert("Error", error.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Delete type
+  const handleDelete = async () => {
+    try {
+      setIsLoading(true);
+
+      const response = await fetch(`${API_URL}/type/${item?._id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.message || "Something went wrong");
+
+      Alert.alert("Success", "You successfully deleted the type!");
+      resetModal();
+      onClose();
+    } catch (error) {
+      console.error("Delete error:", error);
+      Alert.alert("Error", error.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Delete alert
+  const showDeleteAlert = () => {
+    Alert.alert("Confirm", `Are you sure you want to delete ${item?.name}?`, [
+      {
+        text: "Cancel",
+        onPress: () => console.log("cancel delete"),
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        onPress: () => handleDelete(),
+        style: "destructive",
+      },
+    ]);
+  };
+
+  // Reset Input
+  const resetModal = () => {
+    setName("");
+    setCategory("income");
+    setSelectedCategory(null);
+  };
+
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
+  const handleSelect = (category) => {
+    setSelectedCategory(category);
+  };
+
+  function findOptionByIcon(optionName) {
+    for (const category of icons) {
+      const foundOption = category.options.find(
+        (option) => option.icon === optionName
+      );
+      if (foundOption) {
+        return {
+          name: foundOption.name,
+          icon: foundOption.icon,
+          category: category.category, // parent category name
+        };
+      }
+    }
+    return null; // if not found
+  }
+
+  useEffect(() => {
+    if (!!item) {
+      setName(item?.name);
+      setCategory(item?.category);
+      setSelectedCategory(findOptionByIcon(item?.icon));
+    }
+  }, [item]);
 
   const onClose = () => {
     router.back();
   };
 
-  const [types, setTypes] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const fetchTypes = async (refresh = false) => {
-    try {
-      setIsLoading(true);
-
-      const response = await fetch(`${API_URL}/type`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to fetch types");
-
-      setTypes(data);
-    } catch (error) {
-      console.log("Error fetching types", error);
-    } finally {
-      //   if (refresh) setRefreshing(false);
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTypes();
-  }, []);
-
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingType, setEditingType] = useState(null);
-
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.typeCard}
-      onPress={() => {
-        setIsModalVisible(true);
-        setEditingType(item);
-      }}
-    >
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          flex: 1,
-          alignItems: "center",
-          gap: 14,
-        }}
-      >
-        <View
-          style={[
-            styles.iconContainer,
-            {
-              backgroundColor:
-                item?.category === "income"
-                  ? colors.successOverlay
-                  : colors.errorOverlay,
-            },
-          ]}
-        >
-          <Ionicons
-            name={item.icon}
-            size={verticalScale(26)}
-            color={item?.category === "income" ? colors.success : colors.error}
-          />
-        </View>
-
-        <View style={styles.cardLabels}>
-          <Text
-            style={[
-              {
-                textAlign: "left",
-              },
-              styles.label,
-            ]}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {item?.category?.charAt(0).toUpperCase() + item?.category?.slice(1)}
-          </Text>
-          <Text
-            style={[
-              {
-                textAlign: "left",
-                color:
-                  item?.category === "income" ? colors.success : colors.error,
-              },
-              styles.mainLabel,
-            ]}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {item?.name}
-          </Text>
-        </View>
-      </View>
-      <View
-        style={{
-          display: "flex",
-          flex: 1,
-          maxWidth: "30%",
-        }}
-      >
-        <Text
-          style={[
-            {
-              textAlign: "right",
-            },
-            styles.label,
-          ]}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          Last Updated
-        </Text>
-        <Text
-          style={[
-            {
-              textAlign: "right",
-              color: colors.textDark,
-            },
-            styles.mainLabel,
-          ]}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {new Date(item?.updatedAt).toLocaleDateString()}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
-
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <Modal
-        visible={isVisible}
-        transparent={true}
-        animationType="none"
-        onRequestClose={onClose}
-      >
+    <ModalWrapper>
+      <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Ionicons name="arrow-back" size={verticalScale(26)} color="#333" />
           </TouchableOpacity>
-          <Text style={styles.title}>Transaction Types</Text>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => setIsModalVisible(true)}
-          >
-            <Ionicons name="add" size={30} color="white" />
-          </TouchableOpacity>
+          <Text style={styles.title}>{item ? "Edit" : "New"} Type</Text>
+          {/* Delete button */}
+          {item ? (
+            isLoading ? (
+              <ActivityIndicator color={colors.error} />
+            ) : (
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => showDeleteAlert()}
+              >
+                <Ionicons
+                  name="trash-outline"
+                  size={verticalScale(26)}
+                  color={colors.error}
+                />
+              </TouchableOpacity>
+            )
+          ) : (
+            <></>
+          )}
         </View>
-        {isLoading ? (
-          <ActivityIndicator style={{ flex: 1 }} />
-        ) : (
-          <FlatList
-            data={types}
-            renderItem={renderItem}
-            keyExtractor={(item) => item._id}
-            contentContainerStyle={styles.listContainer}
-          />
-        )}
-      </Modal>
-      <AddTypeModal
-        isVisible={isModalVisible}
-        onClose={() => {
-          setIsModalVisible(false);
-          fetchTypes();
-          setEditingType(null);
-        }}
-        item={editingType}
-      />
-    </KeyboardAvoidingView>
+
+        <ScrollView
+          contentContainerStyle={styles.scrollContentContainer}
+          style={styles.scrollViewStyle}
+        >
+          {/* Type Name */}
+          <View style={styles.form}>
+            <View style={styles.formGroup}>
+              <IncomeExpenseToggle
+                onSelectionChange={handleCategoryChange}
+                item={item}
+              />
+            </View>
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>New Type Name</Text>
+              <View style={styles.inputContainer}>
+                <Ionicons
+                  name="create-outline"
+                  size={20}
+                  color={colors.textSecondary}
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter type name"
+                  placeholderTextColor={colors.placeholderText}
+                  value={name}
+                  onChangeText={setName}
+                />
+              </View>
+            </View>
+
+            {/* Icon */}
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>New Type Icon</Text>
+              <View style={[styles.iconPicker, { padding: 10 }]}>
+                <View style={{ width: "100%" }}>
+                  {icons.map((cat) => (
+                    <View key={cat.category}>
+                      <Text style={{ color: colors.primaryDark }}>
+                        {cat.category}
+                      </Text>
+                      <View
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          alignItems: "flex-start",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        {cat.options.map((icon) => (
+                          <TouchableOpacity
+                            key={icon.name}
+                            style={[
+                              styles.categoryButton,
+                              selectedCategory?.name === icon.name &&
+                                styles.selectedButton,
+                            ]}
+                            onPress={() => handleSelect(icon)}
+                          >
+                            <Ionicons
+                              name={icon.icon}
+                              size={28}
+                              color={
+                                selectedCategory?.name === icon.name
+                                  ? colors.primaryDark
+                                  : colors.textSecondary
+                              }
+                            />
+                            <Text
+                              style={[
+                                styles.categoryText,
+                                selectedCategory?.name === icon.name &&
+                                  styles.selectedText,
+                              ]}
+                            >
+                              {icon.name}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.button}
+              onPress={item ? handleUpdate : handleSubmit}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator color={colors.white} />
+              ) : (
+                <Text style={styles.buttonText}>
+                  {item ? "Save Changes" : "Add new Type"}
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </View>
+    </ModalWrapper>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    backgroundColor: colors.background,
-    padding: 16,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 20,
-  },
-  closeButton: {
-    marginRight: 15,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 0,
-  },
-  option: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-  },
-  iconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 15,
-  },
-  textContainer: {
-    flex: 1,
-  },
-  optionText: {
-    fontSize: 18,
-    fontWeight: "500",
-    marginBottom: 4,
-  },
-  optionSubtext: {
-    fontSize: 14,
-    color: "#666",
-  },
-  footerContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 16,
-    backgroundColor: "white",
-    borderTopWidth: 1,
-    borderTopColor: "#eee",
-  },
-  listContainer: {
-    padding: 16,
-    paddingBottom: 20,
-  },
-  typeCard: {
-    backgroundColor: colors.white,
-    padding: 10,
-    marginBottom: 10,
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderRadius: 10,
-  },
-  cardLabels: {
-    display: "flex",
-    flex: 1,
-  },
-  label: { fontSize: 12, color: colors.textSecondary },
-  mainLabel: { fontSize: 20, fontWeight: 800 },
-  button: {
-    borderRadius: 30,
-    backgroundColor: colors.primary,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  iconContainer: {
-    width: 35,
-    height: 35,
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});

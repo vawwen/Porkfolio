@@ -1,8 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import Typo from './Typo'
+import { StyleSheet, Text, View } from "react-native";
+import React from "react";
+import Typo from "./Typo";
 
-const Header = ({ title="", leftIcon, style}) => {
+const Header = ({ title = "", leftIcon, style }) => {
   return (
     <View style={[styles.container, style]}>
       {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
@@ -11,26 +11,27 @@ const Header = ({ title="", leftIcon, style}) => {
           size={22}
           fontWeight="600"
           style={{
-            textAlign: 'center',
-            width: leftIcon ? "82%" : "100%"
+            textAlign: "center",
+            width: leftIcon ? "82%" : "100%",
           }}
         >
           {title}
         </Typo>
       )}
     </View>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;
 
 const styles = StyleSheet.create({
-    container: {
-        width: '100%',
-        alignItems: 'center',
-        flexDirection: 'row'
-    },
-    leftIcon: {
-        alignSelf: 'flex-start'
-    }
-})
+  container: {
+    // width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 20,
+  },
+  leftIcon: {
+    alignSelf: "flex-start",
+  },
+});

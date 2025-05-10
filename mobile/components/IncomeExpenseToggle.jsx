@@ -1,9 +1,16 @@
 import React, { useState } from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { colors } from "../constants/Theme";
+import { useEffect } from "react";
 
-const IncomeExpenseToggle = ({ onSelectionChange }) => {
+const IncomeExpenseToggle = ({ onSelectionChange, item }) => {
   const [activeTab, setActiveTab] = useState("income");
+
+  useEffect(() => {
+    if (item) {
+      setActiveTab(item?.category);
+    }
+  }, [item]);
 
   const handleTabPress = (tab) => {
     setActiveTab(tab);
