@@ -52,7 +52,9 @@ router.post("/", protectRoute, async (req, res) => {
       return res.status(400).json({ message: "Please provide all fields" });
     }
 
-    const existingType = await Type.findOne({ name });
+    const user = req.user._id;
+
+    const existingType = await Type.findOne({ name, user, category });
     if (existingType) {
       return res.status(400).json({ message: "Expense type already exists" });
     }
@@ -60,7 +62,8 @@ router.post("/", protectRoute, async (req, res) => {
     const type = new Type({
       name,
       icon,
-      user: req.user._id,
+      category,
+      user,
     });
 
     await type.save();
@@ -83,10 +86,12 @@ router.put("/:id", protectRoute, async (req, res) => {
       return res.status(400).json({ message: "Please provide all fields" });
     }
 
+    const user = req.user._id;
+
     // Check if type exists and belongs to user
     const existingType = await Type.findOne({
       _id: id,
-      user: req.user._id,
+      user,
     });
 
     if (!existingType) {
@@ -96,7 +101,8 @@ router.put("/:id", protectRoute, async (req, res) => {
     // Check for duplicate name (excluding current document)
     const duplicateName = await Type.findOne({
       name,
-      user: req.user._id,
+      user,
+      category,
       _id: { $ne: id },
     });
 

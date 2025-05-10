@@ -5,7 +5,6 @@ const typeSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      unique: true,
     },
     icon: {
       type: String,
@@ -23,6 +22,8 @@ const typeSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+typeSchema.index({ name: 1, user: 1, category: 1 }, { unique: true });
 
 const Type = mongoose.model("Type", typeSchema);
 
