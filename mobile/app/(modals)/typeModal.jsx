@@ -203,6 +203,7 @@ export default function profileModal() {
   return (
     <ModalWrapper>
       <View style={styles.container}>
+        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Ionicons name="arrow-back" size={verticalScale(26)} color="#333" />

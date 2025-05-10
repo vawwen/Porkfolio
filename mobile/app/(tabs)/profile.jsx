@@ -97,7 +97,7 @@ export default function Profile() {
           {/* Name & email */}
           <View style={styles.userInfo}>
             <Text style={styles.name}>{user?.username}</Text>
-            <Text style={styles.email}>{user?.username}</Text>
+            <Text style={styles.email}>{user?.email}</Text>
           </View>
         </View>
 

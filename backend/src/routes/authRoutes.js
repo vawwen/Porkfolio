@@ -1,6 +1,8 @@
 import express from "express";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
+import protectRoute from "../middleware/auth.middleware.js";
+import cloudinary from "../lib/cloudinary.js";
 
 const router = express.Router();
 
@@ -97,6 +99,48 @@ router.post("/login", async (req, res) => {
     });
   } catch (error) {
     console.log("Error in login route", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// User profile edit
+router.put("/", protectRoute, async (req, res) => {
+  try {
+    const { username, email, profileImage } = req.body;
+
+    if (!username || !email || !profileImage) {
+      return res.status(400).json({ message: "Please provide all fields" });
+    }
+
+    const userData = await User.findOne({
+      _id: req.user._id,
+    });
+
+    const existingEmail = await User.findOne({
+      email,
+      _id: { $ne: req.user._id },
+    });
+    if (existingEmail) {
+      return res
+        .status(400)
+        .json({ message: "User with email already exists" });
+    }
+
+    let imageUrl = userData.profileImage;
+    if (userData.profileImage !== profileImage) {
+      const uploadRes = await cloudinary.uploader.upload(profileImage);
+      imageUrl = uploadRes.secure_url;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { username, email, profileImage: imageUrl },
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.log("Error editing user", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
