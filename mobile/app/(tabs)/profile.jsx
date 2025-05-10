@@ -6,12 +6,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React from "react";
 import ScreenWrapper from "@/components/ScreenWrapper";
-import { colors, radius, spacingX, spacingY } from "@/constants/Theme";
+import { colors, spacingY } from "@/constants/Theme";
 import { verticalScale } from "@/utils/styling";
 import { Image } from "expo-image";
-import { getProfileImage } from "@/services/imageService";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "../../store/authStore";
@@ -23,7 +22,7 @@ export default function Profile() {
   const accountOptions = [
     {
       title: "Edit Profile",
-      icon: "person",
+      icon: "person-outline",
       routeName: "/(modals)/profileModal",
     },
     {

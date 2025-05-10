@@ -6,6 +6,7 @@ import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import typeRoutes from "./routes/typeRoutes.js";
 import expenseRoutes from "./routes/expenseRoutes.js";
+import walletRoutes from "./routes/walletRoutes.js";
 
 import { connectDB } from "./lib/db.js";
 
@@ -20,6 +21,7 @@ app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/api/expense", expenseRoutes);
 app.use("/api/type", typeRoutes);
+app.use("/api/wallet", walletRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
