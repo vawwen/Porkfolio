@@ -2,6 +2,7 @@ import express from "express";
 import Wallet from "../models/Wallet.js";
 import cloudinary from "../lib/cloudinary.js";
 import protectRoute from "../middleware/auth.middleware.js";
+import Expense from "../models/Expense.js";
 
 const router = express.Router();
 
@@ -29,7 +30,6 @@ router.post("/", protectRoute, async (req, res) => {
       name,
       icon: imageUrl,
       limit,
-      balance: 0,
       user: req.user._id,
     });
 
@@ -82,7 +82,7 @@ router.put("/:id", protectRoute, async (req, res) => {
     // Update the wallet
     const updatedWallet = await Wallet.findByIdAndUpdate(
       id,
-      { name, icon: imageUrl, limit, balance: existingWallet.balance },
+      { name, icon: imageUrl, limit },
       { new: true, runValidators: true }
     );
 
@@ -96,10 +96,20 @@ router.put("/:id", protectRoute, async (req, res) => {
 // Get all wallets
 router.get("/", protectRoute, async (req, res) => {
   try {
-    const wallet = await Wallet.find({ user: req.user._id }).sort({
+    const wallets = await Wallet.find({ user: req.user._id }).sort({
       createdAt: 1,
     });
-    res.json(wallet);
+
+    const totalBalance = wallets.reduce((sum, wallet) => {
+      return sum + (wallet.balance || 0);
+    }, 0);
+
+    const roundedTotal = parseFloat(totalBalance.toFixed(2));
+
+    res.json({
+      wallets,
+      totalBalance: roundedTotal,
+    });
   } catch (error) {
     console.log("Error in getting all wallets", error);
     res.status(500).json({ message: "Internal server error" });
@@ -117,6 +127,8 @@ router.delete("/:id", protectRoute, async (req, res) => {
     if (wallet.user.toString() !== req.user._id.toString()) {
       return res.status(401).json({ message: "Unauthorized" });
     }
+
+    await Expense.deleteMany({ wallet: wallet._id });
 
     if (wallet.icon && wallet.icon.includes("cloudinary")) {
       try {

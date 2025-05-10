@@ -22,10 +22,10 @@ import { API_URL } from "../../constants/api";
 export default function Home() {
   const { user, token } = useAuthStore();
   const router = useRouter();
-  const balance = 10 ?? 0;
+  const [balance, setBalance] = useState(0);
   const [balIndicator, setBalIndicator] = useState("");
-  const income = 1000000000 ?? 0;
-  const expense = 1000000000 ?? 0;
+  const [income, setIncome] = useState(0);
+  const [expense, setExpense] = useState(0);
 
   // Modal
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -67,7 +67,12 @@ export default function Home() {
 
       setHasMore(pageNum < data.totalPages);
       setPage(pageNum);
-      console.log(data.expense);
+
+      setBalance(parseFloat(data.balance).toFixed(2));
+      setIncome(parseFloat(data.totalIncome).toFixed(2));
+      setExpense(parseFloat(data.totalExpense).toFixed(2));
+
+      console.log(data);
     } catch (error) {
       console.log("Error fetching transactions", error);
     } finally {
@@ -83,7 +88,7 @@ export default function Home() {
   const handleLoadMore = async () => {};
 
   const renderItem = ({ item }) => {
-    <TouchableOpacity key={index} style={styles.transactionsCard}>
+    <TouchableOpacity key={item._id} style={styles.transactionsCard}>
       {/* Transaction Icon */}
       <Ionicons
         name="car-sharp"
@@ -121,7 +126,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (balance === 0) {
+    if (balance == 0) {
       setBalIndicator("");
     } else if (balance > 0) {
       setBalIndicator("+ ");
@@ -152,7 +157,7 @@ export default function Home() {
                 {
                   // Dynamic colors based on balance
                   color:
-                    balance === 0
+                    balance == 0
                       ? colors.textSecondary // no balance
                       : balance > 0
                       ? colors.success // surplus
@@ -185,7 +190,7 @@ export default function Home() {
                   <Text
                     style={[
                       styles.boxText,
-                      income === 0 ? styles.neutral : styles.income,
+                      income == 0 ? styles.neutral : styles.income,
                     ]}
                     numberOfLines={1}
                     ellipsizeMode="tail"
@@ -215,7 +220,7 @@ export default function Home() {
                   <Text
                     style={[
                       styles.boxText,
-                      expense === 0 ? styles.neutral : styles.expense,
+                      expense == 0 ? styles.neutral : styles.expense,
                     ]}
                     numberOfLines={1}
                     ellipsizeMode="tail"

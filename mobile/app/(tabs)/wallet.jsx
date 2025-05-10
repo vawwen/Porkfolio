@@ -39,8 +39,8 @@ export default function wallet() {
       if (!response.ok)
         throw new Error(data.message || "Failed to fetch wallets");
 
-      setWallets(data.wallets);
-      setTotalBalance(data.totalBalance);
+      setWallets(data.wallets ?? []);
+      setTotalBalance(data.totalBalance ?? 0.0);
     } catch (error) {
       console.log("Error fetching wallets", error);
     } finally {
@@ -97,7 +97,7 @@ export default function wallet() {
                 <ActivityIndicator color={colors.primary} />
               </View>
             ) : (
-              wallets.map((item) => (
+              wallets?.map((item) => (
                 <TouchableOpacity
                   key={item?._id}
                   style={styles.walletItem}
@@ -132,9 +132,11 @@ export default function wallet() {
                       ellipsizeMode="tail"
                     >
                       Balance{" "}
-                      {(Math.abs(item?.balance) > item?.limit &&
-                        item?.balance < 0) ?? (
+                      {Math.abs(item.balance) > item.limit &&
+                      item.balance < 0 ? (
                         <Text style={styles.exceedLimit}>EXCEEDS LIMIT!</Text>
+                      ) : (
+                        <></>
                       )}
                     </Text>
                     <Text
@@ -155,7 +157,7 @@ export default function wallet() {
                         : item?.balance === 0
                         ? ""
                         : "- "}
-                      ${item?.balance}
+                      ${Math.abs(item?.balance)}
                     </Text>
                     <Text style={styles.walletSubtitle}>
                       Limit: {item?.limit}

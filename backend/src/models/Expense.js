@@ -21,6 +21,11 @@ const expenseSchema = new mongoose.Schema(
       ref: "Type",
       required: true,
     },
+    wallet: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Wallet",
+      required: true,
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
