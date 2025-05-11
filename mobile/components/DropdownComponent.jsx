@@ -6,8 +6,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { colors } from "@/constants/Theme";
 
 const DropdownComponent = ({ icon, data, value, setValue }) => {
-  const [selected, setSelected] = useState(null);
-
   return (
     <Dropdown
       itemTextStyle={{ fontSize: 14 }}

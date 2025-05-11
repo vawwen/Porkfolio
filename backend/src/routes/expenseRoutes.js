@@ -144,13 +144,24 @@ router.get("/", protectRoute, async (req, res) => {
     const limit = req.query.limit || 5;
     const skip = (page - 1) * limit;
 
-    const expense = await Expense.find()
+    let query = Expense.find();
+
+    if (wallet) {
+      query = query.where("wallet").equals(wallet);
+    }
+
+    const expense = await query
       .sort({ createdAt: -1 }) //desc
       .skip(skip)
       .limit(limit)
-      .populate("user", "username profileImage");
+      .populate("type");
 
-    const totalExpenseItem = await Expense.countDocuments();
+    const countQuery = Expense.countDocuments();
+
+    if (wallet) {
+      countQuery.where("wallet").equals(wallet);
+    }
+    const totalExpenseItem = await countQuery;
 
     let balance = 0;
     let totalIncome = 0;
