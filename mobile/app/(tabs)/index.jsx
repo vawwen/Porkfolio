@@ -18,6 +18,7 @@ import styles from "../../assets/styles/txn.styles";
 import FloatingButton from "../../components/FloatingButton";
 import TransactionModal from "../../components/TransactionModal";
 import { API_URL } from "../../constants/api";
+import { useGlobalUpdate } from "@/hooks/useGlobalUpdate";
 
 export default function Home() {
   const { user, token } = useAuthStore();
@@ -47,6 +48,7 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
+  // Get Expenses
   const fetchExpenses = async (pageNum = 1, refresh = false) => {
     try {
       if (refresh) setRefreshing(true);
@@ -63,7 +65,7 @@ export default function Home() {
       if (!response.ok)
         throw new Error(data.message || "Failed to fetch transactions");
 
-      setTransactions((prevTxns) => [...prevTxns, ...data.expense]);
+      // setTransactions((prevTxns) => [...prevTxns, ...data.expense]);
 
       setHasMore(pageNum < data.totalPages);
       setPage(pageNum);
@@ -81,6 +83,8 @@ export default function Home() {
     }
   };
 
+  // Update states
+  useGlobalUpdate(fetchExpenses);
   useEffect(() => {
     fetchExpenses();
   }, []);
@@ -88,7 +92,7 @@ export default function Home() {
   const handleLoadMore = async () => {};
 
   const renderItem = ({ item }) => {
-    <TouchableOpacity key={item._id} style={styles.transactionsCard}>
+    <TouchableOpacity style={styles.transactionsCard}>
       {/* Transaction Icon */}
       <Ionicons
         name="car-sharp"
@@ -238,7 +242,7 @@ export default function Home() {
               keyExtractor={(item) => item._id}
               contentContainerStyle={styles.listContainer}
               showsVerticalScrollIndicator={false}
-            ></FlatList>
+            />
           </View>
         </View>
       </View>

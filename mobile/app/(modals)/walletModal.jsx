@@ -20,6 +20,7 @@ import { API_URL } from "@/constants/api";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import { useAuthStore } from "@/store/authStore";
+import { EventEmitter } from "@/utils/eventEmitter";
 
 const walletModal = () => {
   const { token } = useAuthStore();
@@ -140,6 +141,7 @@ const walletModal = () => {
 
       Alert.alert("Success", "You can now use your new wallet!");
 
+      EventEmitter.emit();
       resetModal();
       onClose();
     } catch (error) {
@@ -201,6 +203,7 @@ const walletModal = () => {
 
       Alert.alert("Success", "You successfully edited the wallet!");
 
+      EventEmitter.emit();
       resetModal();
       onClose();
     } catch (error) {
@@ -229,6 +232,8 @@ const walletModal = () => {
       if (!response.ok) throw new Error(data.message || "Something went wrong");
 
       Alert.alert("Success", "You successfully deleted the wallet!");
+
+      EventEmitter.emit();
       resetModal();
       onClose();
     } catch (error) {

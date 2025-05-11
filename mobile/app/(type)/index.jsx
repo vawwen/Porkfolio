@@ -11,14 +11,14 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { verticalScale } from "@/utils/styling";
 import { colors } from "../../constants/Theme";
-import { useRouter, useSegments } from "expo-router";
+import { useRouter } from "expo-router";
 import { useAuthStore } from "../../store/authStore";
 import { API_URL } from "../../constants/api";
 import styles from "../../assets/styles/type.styles";
+import { useGlobalUpdate } from "../../hooks/useGlobalUpdate";
 
 export default function Type() {
   const router = useRouter();
-  const segments = useSegments();
   const { token } = useAuthStore();
 
   const onClose = () => {
@@ -44,16 +44,15 @@ export default function Type() {
     } catch (error) {
       console.log("Error fetching types", error);
     } finally {
-      //   if (refresh) setRefreshing(false);
       setIsLoading(false);
     }
   };
 
+  // Update States
+  useGlobalUpdate(fetchTypes);
   useEffect(() => {
-    if (segments[0] === "(type)") {
-      fetchTypes();
-    }
-  }, [segments]);
+    fetchTypes();
+  }, []);
 
   const renderItem = ({ item }) => (
     <TouchableOpacity

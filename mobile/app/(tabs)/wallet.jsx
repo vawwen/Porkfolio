@@ -8,19 +8,19 @@ import {
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import ScreenWrapper from "@/components/ScreenWrapper";
-import { colors, spacingX, spacingY, radius } from "@/constants/Theme";
+import { colors } from "@/constants/Theme";
 import { verticalScale } from "@/utils/styling";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter, useSegments } from "expo-router";
+import { useRouter } from "expo-router";
 import { API_URL } from "@/constants/api";
 import { useAuthStore } from "@/store/authStore";
 import { Image } from "expo-image";
 import logo from "../../assets/images/logo-1.png";
 import styles from "@/assets/styles/wallet.styles";
+import { useGlobalUpdate } from "@/hooks/useGlobalUpdate";
 
 export default function wallet() {
   const { token } = useAuthStore();
-  const segments = useSegments();
 
   const [wallets, setWallets] = useState([]);
   const [totalBalance, setTotalBalance] = useState(0);
@@ -48,11 +48,11 @@ export default function wallet() {
     }
   };
 
+  // Update states
+  useGlobalUpdate(fetchWallets);
   useEffect(() => {
-    if (segments[0] === "(tabs)" && segments[1] === "wallet") {
-      fetchWallets();
-    }
-  }, [segments]);
+    fetchWallets();
+  }, []);
 
   const router = useRouter();
 

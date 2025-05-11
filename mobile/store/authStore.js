@@ -87,7 +87,6 @@ export const useAuthStore = create((set) => ({
 
   edit: async (user) => {
     try {
-      console.log("1. Received user:", user);
       await AsyncStorage.setItem("user", JSON.stringify(user));
     } catch (error) {
       console.log("Edit profile interface failed", error);

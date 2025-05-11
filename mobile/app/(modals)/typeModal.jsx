@@ -19,6 +19,7 @@ import styles from "../../assets/styles/modals.styles";
 import { ProfileIcons } from "../../constants/constants";
 import IncomeExpenseToggle from "../../components/IncomeExpenseToggle";
 import { API_URL } from "../../constants/api";
+import { EventEmitter } from "@/utils/eventEmitter";
 
 export default function typeModal() {
   const router = useRouter();
@@ -72,6 +73,7 @@ export default function typeModal() {
       console.error("Error adding type:", error);
       Alert.alert("Error", error.message || "Something went wrong");
     } finally {
+      EventEmitter.emit();
       setIsLoading(false);
     }
   };
@@ -111,6 +113,7 @@ export default function typeModal() {
       console.error("Error editing type:", error);
       Alert.alert("Error", error.message || "Something went wrong");
     } finally {
+      EventEmitter.emit();
       setIsLoading(false);
     }
   };
@@ -133,6 +136,8 @@ export default function typeModal() {
       if (!response.ok) throw new Error(data.message || "Something went wrong");
 
       Alert.alert("Success", "You successfully deleted the type!");
+
+      EventEmitter.emit();
       resetModal();
       onClose();
     } catch (error) {

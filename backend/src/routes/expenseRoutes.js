@@ -35,10 +35,8 @@ router.post("/", protectRoute, async (req, res) => {
       {
         $inc: {
           balance: amount,
-          ...(category === "income" ? { totalIncome: Math.abs(amount) } : {}),
-          ...(category === "expense"
-            ? { totalExpenses: Math.abs(amount) }
-            : {}),
+          ...(category === "income" ? { income: Math.abs(amount) } : {}),
+          ...(category === "expense" ? { expense: Math.abs(amount) } : {}),
         },
       },
       {
@@ -88,10 +86,10 @@ router.put("/:id", protectRoute, async (req, res) => {
         $inc: {
           balance: amount,
           ...(existingExpense.category === "income"
-            ? { totalIncome: Math.abs(amount) * -1 }
+            ? { income: Math.abs(amount) * -1 }
             : {}),
           ...(existingExpense.category === "expense"
-            ? { totalExpenses: Math.abs(amount) * -1 }
+            ? { expense: Math.abs(amount) * -1 }
             : {}),
         },
       },
@@ -113,12 +111,8 @@ router.put("/:id", protectRoute, async (req, res) => {
       {
         $inc: {
           balance: newAmount,
-          ...(category === "income"
-            ? { totalIncome: Math.abs(newAmount) }
-            : {}),
-          ...(category === "expense"
-            ? { totalExpenses: Math.abs(newAmount) }
-            : {}),
+          ...(category === "income" ? { income: Math.abs(newAmount) } : {}),
+          ...(category === "expense" ? { expense: Math.abs(newAmount) } : {}),
         },
       },
       {
@@ -202,7 +196,7 @@ router.get("/", protectRoute, async (req, res) => {
   }
 });
 
-// Delete expense type
+// Delete expense
 router.delete("/:id", protectRoute, async (req, res) => {
   try {
     const expense = await Expense.findById(req.params.id);
@@ -225,10 +219,10 @@ router.delete("/:id", protectRoute, async (req, res) => {
         $inc: {
           balance: amount,
           ...(expense.category === "income"
-            ? { totalIncome: Math.abs(amount) * -1 }
+            ? { income: Math.abs(amount) * -1 }
             : {}),
           ...(expense.category === "expense"
-            ? { totalExpenses: Math.abs(amount) * -1 }
+            ? { expense: Math.abs(amount) * -1 }
             : {}),
         },
       },
