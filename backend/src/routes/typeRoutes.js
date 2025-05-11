@@ -1,7 +1,7 @@
 import express from "express";
 import Type from "../models/Type.js";
-import cloudinary from "../lib/cloudinary.js";
 import protectRoute from "../middleware/auth.middleware.js";
+import Expense from "../models/Expense.js";
 
 const router = express.Router();
 
@@ -154,13 +154,12 @@ router.delete("/:id", protectRoute, async (req, res) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    if (type.icon && type.icon.includes("cloudinary")) {
-      try {
-        const publicId = type.icon.split("/").pop().split(".")[0];
-        await cloudinary.uploader.destroy(publicId);
-      } catch (deleteError) {
-        console.log("Error deleting icon from cloudinary", deleteError);
-      }
+    const existingExpenses = await Expense.find({ type: req.params.id });
+    if (existingExpenses.length > 0) {
+      return res.status(400).json({
+        message: "Cannot delete type: Associated expenses exist",
+        expensesCount: existingExpenses.length,
+      });
     }
 
     await type.deleteOne();
