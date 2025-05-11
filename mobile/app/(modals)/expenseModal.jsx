@@ -6,122 +6,57 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
-  Platform,
 } from "react-native";
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { colors } from "@/constants/Theme";
 import { verticalScale } from "@/utils/styling";
 import ModalWrapper from "@/components/ModalWrapper";
-import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import styles from "@/assets/styles/modals.styles";
-import { API_URL } from "@/constants/api";
-import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
-import { useAuthStore } from "@/store/authStore";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useAuthStore } from "../../store/authStore";
+import styles from "../../assets/styles/modals.styles";
+import IncomeExpenseToggle from "../../components/IncomeExpenseToggle";
+import { API_URL } from "../../constants/api";
+import DropdownComponent from "@/components/DropdownComponent";
 
-const walletModal = () => {
-  const { token } = useAuthStore();
+export default function expenseModal() {
   const router = useRouter();
-
-  const [name, setName] = useState("");
-  const [limit, setLimit] = useState("");
-  const [image, setImage] = useState(null);
-  const [imageBase64, setImageBase64] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Get Wallet
   const params = useLocalSearchParams();
   const item = useMemo(() => {
     return params?.data ? JSON.parse(params.data) : null;
   }, [params?.data]);
 
-  useEffect(() => {
-    if (!!item) {
-      setName(item?.name);
-      setLimit(item?.limit);
-      setImage(item?.icon);
-    }
-  }, []);
+  const [name, setName] = useState("");
+  const [amount, setAmount] = useState(""); // value
+  const [category, setCategory] = useState("income");
+  const [wallet, setWallet] = useState(null);
+  const [type, setType] = useState(null);
 
-  useEffect(() => {
-    console.log(limit);
-  }, [limit]);
+  const [walletList, setWalletList] = useState([]);
+  const [typeList, setTypeList] = useState([]);
 
-  const onClose = () => {
-    router.back();
+  const [isLoading, setIsLoading] = useState(false);
+  const [walletLoading, setWalletLoading] = useState(false);
+  const [typeLoading, setTypeLoading] = useState(false);
+
+  //   name, value, category, type, wallet;
+
+  const { token } = useAuthStore();
+
+  const handleCategoryChange = (option) => {
+    setCategory(option);
   };
 
-  const resetModal = () => {
-    setName("");
-    setLimit(0);
-    setImage(null);
-    setImageBase64(null);
-  };
-
-  // Image upload
-  const pickImage = async () => {
-    try {
-      if (Platform.OS !== "web") {
-        const { status } =
-          await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== "granted") {
-          Alert.alert(
-            "Permission Denied",
-            "We need camera roll permissions to upload an image"
-          );
-          return;
-        }
-
-        const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: "images",
-          allowsEditing: true,
-          aspect: [1, 1],
-          quality: 0.5,
-          base64: true,
-        });
-
-        console.log(result);
-
-        if (!result.canceled) {
-          setImage(result.assets[0].uri);
-
-          if (result.assets[0].base64) {
-            setImageBase64(result.assets[0].base64);
-          } else {
-            const base64 = await FileSystem.readAsStringAsync(
-              result.assets[0].uri,
-              { encoding: FileSystem.EncodingType.Base64 }
-            );
-            setImageBase64(base64);
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error picking image:", error);
-      Alert.alert("Error", "There was a problem selecting your image");
-    }
-  };
-
-  // Add new wallet
+  // Add new expense
   const handleSubmit = async () => {
-    if (!name || !limit || !imageBase64) {
+    if (!name || !amount || !wallet || !type) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
     try {
       setIsLoading(true);
 
-      const uriParts = image.split(".");
-      const fileType = uriParts[uriParts.length - 1];
-      const imageType = fileType
-        ? `image/${fileType.toLowerCase()}`
-        : "image/jpeg";
-
-      const imageDataUrl = `data:${imageType};base64,${imageBase64}`;
-
-      const response = await fetch(`${API_URL}/wallet`, {
+      const response = await fetch(`${API_URL}/expense`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -129,8 +64,10 @@ const walletModal = () => {
         },
         body: JSON.stringify({
           name,
-          limit: parseFloat(limit).toFixed(2),
-          icon: imageDataUrl,
+          category,
+          value: amount,
+          wallet,
+          type,
         }),
       });
 
@@ -138,51 +75,30 @@ const walletModal = () => {
 
       if (!response.ok) throw new Error(data.message || "Something went wrong");
 
-      Alert.alert("Success", "You can now use your new wallet!");
+      Alert.alert("Success", "You successfully added a transaction!");
 
       resetModal();
       onClose();
     } catch (error) {
-      console.error("Error adding wallet:", error);
+      console.error("Error adding transaction:", error);
       Alert.alert("Error", error.message || "Something went wrong");
     } finally {
       setIsLoading(false);
+      action();
     }
   };
 
-  // Edit wallet
+  // Edit type
   const handleUpdate = async () => {
     try {
       setIsLoading(true);
 
-      if (
-        name === item.name &&
-        image === item.icon &&
-        imageBase64 &&
-        limit === item.limit
-      ) {
-        Alert.alert("Success", "You successfully edited the wallet!");
-        onClose();
-        return;
-      }
-
-      if (!name || !limit || !image) {
+      if (!name || !amount || !wallet || !type) {
         Alert.alert("Error", "Please fill in all fields");
         return;
       }
 
-      let imageDataUrl = image;
-      if (image !== item.icon) {
-        const uriParts = image.split(".");
-        const fileType = uriParts[uriParts.length - 1];
-        const imageType = fileType
-          ? `image/${fileType.toLowerCase()}`
-          : "image/jpeg";
-
-        imageDataUrl = `data:${imageType};base64,${imageBase64}`;
-      }
-
-      const response = await fetch(`${API_URL}/wallet/${item._id}`, {
+      const response = await fetch(`${API_URL}/expense/${item._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -190,8 +106,10 @@ const walletModal = () => {
         },
         body: JSON.stringify({
           name,
-          icon: imageDataUrl,
-          limit,
+          category,
+          value: amount,
+          wallet,
+          type,
         }),
       });
 
@@ -199,24 +117,24 @@ const walletModal = () => {
 
       if (!response.ok) throw new Error(data.message || "Something went wrong");
 
-      Alert.alert("Success", "You successfully edited the wallet!");
+      Alert.alert("Success", "You successfully edited the transaction!");
 
       resetModal();
       onClose();
     } catch (error) {
-      console.error("Error editing wallet:", error);
+      console.error("Error editing transaction:", error);
       Alert.alert("Error", error.message || "Something went wrong");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Delete wallet
+  // Delete type
   const handleDelete = async () => {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`${API_URL}/wallet/${item?._id}`, {
+      const response = await fetch(`${API_URL}/expense/${item?._id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -228,7 +146,7 @@ const walletModal = () => {
 
       if (!response.ok) throw new Error(data.message || "Something went wrong");
 
-      Alert.alert("Success", "You successfully deleted the wallet!");
+      Alert.alert("Success", "You successfully deleted the transaction!");
 
       resetModal();
       onClose();
@@ -256,14 +174,97 @@ const walletModal = () => {
     ]);
   };
 
+  // Fetch wallets
+  const fetchWallets = async (refresh = false) => {
+    try {
+      setWalletLoading(true);
+
+      const response = await fetch(`${API_URL}/wallet`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.message || "Failed to fetch wallets");
+
+      setWalletList(data.wallets ?? []);
+    } catch (error) {
+      console.log("Error fetching wallets", error);
+    } finally {
+      setWalletLoading(false);
+    }
+  };
+
+  // Fetch types
+  const fetchTypes = async (refresh = false) => {
+    try {
+      setTypeLoading(true);
+
+      const queryParams = new URLSearchParams({
+        category: category,
+      });
+
+      const response = await fetch(`${API_URL}/type?${queryParams}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.message || "Failed to fetch types");
+
+      setTypeList(data);
+    } catch (error) {
+      console.log("Error fetching types", error);
+    } finally {
+      setTypeLoading(false);
+    }
+  };
+
+  // Fetch dropdown data
+  useEffect(() => {
+    fetchTypes();
+    fetchWallets();
+  }, []);
+
+  useEffect(() => {
+    fetchTypes();
+    if (!item) {
+      setType(null);
+    }
+  }, [category]);
+
+  // Reset Input
+  const resetModal = () => {
+    setName("");
+    setCategory("income");
+    setAmount("");
+    setWallet(null);
+    setType(null);
+  };
+
+  useEffect(() => {
+    if (!!item) {
+      setName(item?.name);
+      setCategory(item?.category);
+      setWallet(item?.wallet);
+      setType(item?.type?._id);
+      setAmount(item?.value);
+    }
+  }, [item]);
+
+  const onClose = () => {
+    router.back();
+  };
+
   return (
     <ModalWrapper>
       <View style={styles.container}>
+        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Ionicons name="arrow-back" size={verticalScale(26)} color="#333" />
           </TouchableOpacity>
-          <Text style={styles.title}>{item ? "Edit" : "New"} Wallet</Text>
+          <Text style={styles.title}>{item ? "Edit" : "New"} Transaction</Text>
           {/* Delete button */}
           {item ? (
             isLoading ? (
@@ -284,24 +285,51 @@ const walletModal = () => {
             <></>
           )}
         </View>
+
         <ScrollView
           contentContainerStyle={styles.scrollContentContainer}
           style={styles.scrollViewStyle}
         >
-          {/* Name */}
           <View style={styles.form}>
+            {/* Category */}
             <View style={styles.formGroup}>
-              <Text style={styles.label}>Wallet Name</Text>
+              <IncomeExpenseToggle
+                onSelectionChange={handleCategoryChange}
+                item={item}
+              />
+            </View>
+            {/* Wallet */}
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Wallet</Text>
+              <DropdownComponent
+                icon={"wallet-outline"}
+                data={walletList}
+                value={wallet}
+                setValue={setWallet}
+              />
+            </View>
+            {/* Type */}
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Transaction Type</Text>
+              <DropdownComponent
+                icon={"swap-horizontal"}
+                data={typeList}
+                value={type}
+                setValue={setType}
+              />
+            </View>
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Description</Text>
               <View style={styles.inputContainer}>
                 <Ionicons
-                  name="wallet-outline"
+                  name="create-outline"
                   size={20}
                   color={colors.textSecondary}
                   style={styles.inputIcon}
                 />
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter Wallet Name"
+                  placeholder="Enter transaction description"
                   placeholderTextColor={colors.placeholderText}
                   value={name}
                   onChangeText={setName}
@@ -309,12 +337,12 @@ const walletModal = () => {
               </View>
             </View>
 
-            {/* Limit */}
+            {/* Amount */}
             <View style={styles.formGroup}>
-              <Text style={styles.label}>Limit</Text>
+              <Text style={styles.label}>Amount</Text>
               <View style={styles.inputContainer}>
                 <Ionicons
-                  name="speedometer-outline"
+                  name="cash-outline"
                   size={20}
                   color={colors.textSecondary}
                   style={styles.inputIcon}
@@ -322,44 +350,21 @@ const walletModal = () => {
                 <TextInput
                   keyboardType="decimal-pad"
                   style={styles.input}
-                  placeholder="Enter Spending Limit"
+                  placeholder="Enter amount"
                   placeholderTextColor={colors.placeholderText}
-                  value={String(limit)}
+                  value={String(amount)}
                   onChangeText={(text) => {
                     const filteredText = text.replace(/[^0-9.]/g, "");
 
                     const parts = filteredText.split(".");
                     if (parts.length <= 2) {
-                      setLimit(filteredText);
+                      setAmount(filteredText);
                     }
                   }}
                 />
               </View>
             </View>
 
-            {/* Icon */}
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Wallet Icon</Text>
-              <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
-                {image ? (
-                  <Image
-                    source={{ uri: image }}
-                    style={styles.previewImage}
-                  ></Image>
-                ) : (
-                  <View style={styles.placeholderContainer}>
-                    <Ionicons
-                      name="image-outline"
-                      size={40}
-                      color={colors.textSecondary}
-                    />
-                    <Text style={styles.placeholderText}>
-                      Tap to select image
-                    </Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            </View>
             <TouchableOpacity
               style={styles.button}
               onPress={item ? handleUpdate : handleSubmit}
@@ -369,7 +374,7 @@ const walletModal = () => {
                 <ActivityIndicator color={colors.white} />
               ) : (
                 <Text style={styles.buttonText}>
-                  {item ? "Save Changes" : "Add New Wallet"}
+                  {item ? "Save Changes" : "Add Transaction"}
                 </Text>
               )}
             </TouchableOpacity>
@@ -378,6 +383,4 @@ const walletModal = () => {
       </View>
     </ModalWrapper>
   );
-};
-
-export default walletModal;
+}

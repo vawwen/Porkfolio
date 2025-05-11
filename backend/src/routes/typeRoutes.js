@@ -127,10 +127,17 @@ router.put("/:id", protectRoute, async (req, res) => {
 // Get all expense type
 router.get("/", protectRoute, async (req, res) => {
   try {
-    const type = await Type.find({ user: req.user._id }).sort({ createdAt: 1 });
-    res.json(type);
+    const { category } = req.query;
+
+    const filter = { user: req.user._id };
+    if (category) {
+      filter.category = category;
+    }
+
+    const types = await Type.find(filter).sort({ createdAt: 1 });
+    res.json(types);
   } catch (error) {
-    console.log("Error in getting all expense type", error);
+    console.error("Error getting expense types:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });

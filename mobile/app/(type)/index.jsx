@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -15,7 +15,6 @@ import { useRouter } from "expo-router";
 import { useAuthStore } from "../../store/authStore";
 import { API_URL } from "../../constants/api";
 import styles from "../../assets/styles/type.styles";
-import { useGlobalUpdate } from "../../hooks/useGlobalUpdate";
 
 export default function Type() {
   const router = useRouter();
@@ -49,7 +48,6 @@ export default function Type() {
   };
 
   // Update States
-  useGlobalUpdate(fetchTypes);
   useEffect(() => {
     fetchTypes();
   }, []);

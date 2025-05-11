@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
   ScrollView,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { colors } from "@/constants/Theme";
 import { verticalScale } from "@/utils/styling";
@@ -17,7 +17,6 @@ import { useAuthStore } from "@/store/authStore";
 import { Image } from "expo-image";
 import logo from "../../assets/images/logo-1.png";
 import styles from "@/assets/styles/wallet.styles";
-import { useGlobalUpdate } from "@/hooks/useGlobalUpdate";
 
 export default function wallet() {
   const { token } = useAuthStore();
@@ -49,7 +48,6 @@ export default function wallet() {
   };
 
   // Update states
-  useGlobalUpdate(fetchWallets);
   useEffect(() => {
     fetchWallets();
   }, []);

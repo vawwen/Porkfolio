@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
   section: {
     fontSize: 14,
     color: colors.textSecondary,
+    marginBottom: 12,
   },
   balance: { fontSize: 40, marginTop: 10, fontWeight: 800 },
   username: {
@@ -82,6 +83,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   boxTextWrapper: {
+    marginLeft: 12,
     height: "100%",
     flex: 1,
   },
@@ -95,6 +97,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 700,
   },
+  description: {
+    color: colors.black,
+    fontSize: 20,
+    fontWeight: 700,
+  },
   neutral: {
     color: colors.textSecondary,
     fontSize: 20,
@@ -105,16 +112,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white",
     borderRadius: 10,
-    padding: 16,
+    padding: 10,
     width: "100%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    marginBottom: 12,
   },
   listContainer: {
-    padding: 16,
+    padding: 3,
     paddingBottom: 80,
   },
   transactionsCardType: {},

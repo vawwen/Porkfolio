@@ -1,11 +1,11 @@
 import {
-  StyleSheet,
   Text,
   View,
   Image,
   TouchableOpacity,
-  ScrollView,
   FlatList,
+  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import ScreenWrapper from "@/components/ScreenWrapper";
@@ -16,13 +16,13 @@ import { colors } from "../../constants/Theme";
 import { Ionicons } from "@expo/vector-icons";
 import styles from "../../assets/styles/txn.styles";
 import FloatingButton from "../../components/FloatingButton";
-import TransactionModal from "../../components/TransactionModal";
 import { API_URL } from "../../constants/api";
-import { useGlobalUpdate } from "@/hooks/useGlobalUpdate";
+import homeStyles from "../../assets/styles/home.styles";
 
 export default function Home() {
   const { user, token } = useAuthStore();
   const router = useRouter();
+
   const [balance, setBalance] = useState(0);
   const [balIndicator, setBalIndicator] = useState("");
   const [income, setIncome] = useState(0);
@@ -65,16 +65,32 @@ export default function Home() {
       if (!response.ok)
         throw new Error(data.message || "Failed to fetch transactions");
 
-      // setTransactions((prevTxns) => [...prevTxns, ...data.expense]);
+      const uniqueTransactions =
+        refresh || pageNum === 1
+          ? data.expense
+          : Array.from(
+              new Set([...transactions, ...data.expense].map((txn) => txn._id))
+            ).map((id) =>
+              [...transactions, ...data.expense].find((txn) => txn._id === id)
+            );
+      setTransactions(uniqueTransactions);
 
       setHasMore(pageNum < data.totalPages);
       setPage(pageNum);
 
-      setBalance(parseFloat(data.balance).toFixed(2));
-      setIncome(parseFloat(data.totalIncome).toFixed(2));
-      setExpense(parseFloat(data.totalExpense).toFixed(2));
-
-      console.log(data);
+      setBalance(
+        data?.balance ? parseFloat(data.balance).toFixed(2) : (0).toFixed(2)
+      );
+      setIncome(
+        data?.totalIncome
+          ? parseFloat(data.totalIncome).toFixed(2)
+          : (0).toFixed(2)
+      );
+      setExpense(
+        data?.totalExpense
+          ? parseFloat(data.totalExpense).toFixed(2)
+          : (0).toFixed(2)
+      );
     } catch (error) {
       console.log("Error fetching transactions", error);
     } finally {
@@ -84,50 +100,81 @@ export default function Home() {
   };
 
   // Update states
-  useGlobalUpdate(fetchExpenses);
   useEffect(() => {
     fetchExpenses();
   }, []);
 
-  const handleLoadMore = async () => {};
+  const handleLoadMore = async () => {
+    if (hasMore && !isLoading && !refreshing) {
+      await fetchExpenses(page + 1);
+    }
+  };
 
-  const renderItem = ({ item }) => {
-    <TouchableOpacity style={styles.transactionsCard}>
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      style={[
+        styles.transactionsCard,
+        {
+          backgroundColor:
+            item.category === "income"
+              ? colors.successOverlay
+              : colors.errorOverlay,
+        },
+      ]}
+      onPress={() => {
+        router.push({
+          pathname: "/(modals)/expenseModal",
+          params: {
+            data: JSON.stringify(item),
+          },
+        });
+      }}
+    >
       {/* Transaction Icon */}
       <Ionicons
-        name="car-sharp"
+        name={item?.type?.icon}
         size={30}
-        color={colors.success}
+        color={item.category === "income" ? colors.success : colors.error}
         style={styles.inputIcon}
       />
       <View style={styles.boxTextWrapper}>
         {/* Type */}
         <Text
-          style={[styles.boxText, styles.neutral]}
+          style={[styles.boxText, styles.description]}
           numberOfLines={1}
           ellipsizeMode="tail"
         >
-          {item?.type?.name}
+          {item?.name}
         </Text>
         {/* Desc */}
-        <Text style={[styles.subtitle, styles.boxText]}>{item?.name}</Text>
+        <Text style={[styles.subtitle, styles.boxText]}>
+          {item?.type?.name}
+        </Text>
       </View>
       <View style={[styles.boxTextWrapper, { maxWidth: "30%" }]}>
         {/* Amount */}
         <Text
-          style={[styles.boxText, styles.neutral, { textAlign: "right" }]}
+          style={[
+            styles.boxText,
+            styles.neutral,
+            {
+              textAlign: "right",
+              color:
+                item?.category === "income" ? colors.success : colors.error,
+            },
+          ]}
           numberOfLines={1}
           ellipsizeMode="tail"
         >
-          {item?.value}
+          {item?.category === "income" ? "+" : "-"}${item?.value}
         </Text>
         {/* Date */}
         <Text style={[styles.subtitle, styles.boxText, { textAlign: "right" }]}>
-          25/10/25
+          {new Date(item?.updatedAt).toLocaleDateString()}
         </Text>
       </View>
-    </TouchableOpacity>;
-  };
+    </TouchableOpacity>
+  );
 
   useEffect(() => {
     if (balance == 0) {
@@ -138,6 +185,24 @@ export default function Home() {
       setBalIndicator("- ");
     }
   }, [balance]);
+
+  // Can be loader
+  if (isLoading)
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: colors.background,
+        }}
+      >
+        <ActivityIndicator
+          size={30} //size
+          color={colors.primary}
+        />
+      </View>
+    );
 
   return (
     <ScreenWrapper>
@@ -242,19 +307,45 @@ export default function Home() {
               keyExtractor={(item) => item._id}
               contentContainerStyle={styles.listContainer}
               showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={() => {
+                    fetchExpenses(1, true);
+                  }}
+                  colors={[colors.primary]}
+                  tintColor={colors.primary}
+                />
+              }
+              onEndReached={handleLoadMore}
+              onEndReachedThreshold={0.1}
+              ListFooterComponent={
+                hasMore && transactions.length > 0 ? (
+                  <ActivityIndicator
+                    style={homeStyles.footerLoader}
+                    size="small"
+                    color={colors.primary}
+                  />
+                ) : null
+              }
+              ListEmptyComponent={
+                <View style={homeStyles.emptyContainer}>
+                  <Ionicons
+                    name="cash-outline"
+                    size={60}
+                    color={colors.secondary}
+                  />
+                  <Text style={homeStyles.emptyText}>No transactions yet</Text>
+                  <Text style={homeStyles.emptySubtext}>
+                    Start building your Porkfolio!
+                  </Text>
+                </View>
+              }
             />
           </View>
         </View>
       </View>
-      <FloatingButton onPress={() => setIsModalVisible(true)} />
-
-      {/* Floating Action Modal */}
-      <TransactionModal
-        isVisible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
-        onAddIncome={handleAddIncome}
-        onAddExpense={handleAddExpense}
-      />
+      <FloatingButton onPress={() => router.push("/(modals)/expenseModal")} />
     </ScreenWrapper>
   );
 }
