@@ -63,8 +63,6 @@ export default function profileModal() {
           base64: true,
         });
 
-        console.log(result);
-
         if (!result.canceled) {
           setImage(result.assets[0].uri);
 
@@ -128,8 +126,6 @@ export default function profileModal() {
         }),
       });
       const data = await response.json();
-      console.log(data);
-
       await edit(data.user);
 
       if (!response.ok) throw new Error(data.message || "Something went wrong");

@@ -150,6 +150,8 @@ router.get("/", protectRoute, async (req, res) => {
       query = query.where("wallet").equals(wallet);
     }
 
+    query = query.where("user").equals(req.user._id);
+
     const expense = await query
       .sort({ createdAt: -1 }) //desc
       .skip(skip)

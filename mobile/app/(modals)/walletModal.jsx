@@ -46,10 +46,6 @@ const walletModal = () => {
     }
   }, []);
 
-  useEffect(() => {
-    console.log(limit);
-  }, [limit]);
-
   const onClose = () => {
     router.back();
   };
@@ -82,8 +78,6 @@ const walletModal = () => {
           quality: 0.5,
           base64: true,
         });
-
-        console.log(result);
 
         if (!result.canceled) {
           setImage(result.assets[0].uri);

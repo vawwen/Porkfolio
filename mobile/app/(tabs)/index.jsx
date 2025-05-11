@@ -226,6 +226,27 @@ export default function Home() {
             </Text>
           </View>
           <View style={styles.belowImageContent}>
+            <View
+              style={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                // marginBottom: 5,
+              }}
+            >
+              <Text style={[styles.section, { marginBottom: 5, width: "50%" }]}>
+                Summary
+              </Text>
+              <Text
+                style={[
+                  styles.section,
+                  { marginBottom: 5, width: "50%", paddingLeft: 8 },
+                ]}
+              >
+                Wallet
+              </Text>
+            </View>
             <View style={styles.incomeExpenseContainer}>
               <View style={[styles.box, { flexDirection: "column" }]}>
                 {/* Income */}
