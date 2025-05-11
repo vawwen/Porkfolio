@@ -24,6 +24,7 @@ import { useAuthStore } from "@/store/authStore";
 const walletModal = () => {
   const { token } = useAuthStore();
   const router = useRouter();
+  const triggerRefresh = useAuthStore((state) => state.triggerRefresh);
 
   const [name, setName] = useState("");
   const [limit, setLimit] = useState("");
@@ -146,6 +147,7 @@ const walletModal = () => {
       console.error("Error adding wallet:", error);
       Alert.alert("Error", error.message || "Something went wrong");
     } finally {
+      triggerRefresh();
       setIsLoading(false);
     }
   };
@@ -207,6 +209,7 @@ const walletModal = () => {
       console.error("Error editing wallet:", error);
       Alert.alert("Error", error.message || "Something went wrong");
     } finally {
+      triggerRefresh();
       setIsLoading(false);
     }
   };
@@ -236,6 +239,7 @@ const walletModal = () => {
       console.error("Delete error:", error);
       Alert.alert("Error", error.message || "Something went wrong");
     } finally {
+      triggerRefresh();
       setIsLoading(false);
     }
   };

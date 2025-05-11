@@ -33,6 +33,7 @@ export default function typeModal() {
   const [isLoading, setIsLoading] = useState(false);
 
   const { token } = useAuthStore();
+  const triggerRefresh = useAuthStore((state) => state.triggerRefresh);
 
   const handleCategoryChange = (option) => {
     setCategory(option);
@@ -72,6 +73,7 @@ export default function typeModal() {
       console.error("Error adding type:", error);
       Alert.alert("Error", error.message || "Something went wrong");
     } finally {
+      triggerRefresh();
       setIsLoading(false);
     }
   };
@@ -111,6 +113,7 @@ export default function typeModal() {
       console.error("Error editing type:", error);
       Alert.alert("Error", error.message || "Something went wrong");
     } finally {
+      triggerRefresh();
       setIsLoading(false);
     }
   };
@@ -140,6 +143,7 @@ export default function typeModal() {
       console.error("Delete error:", error);
       Alert.alert("Error", error.message || "Something went wrong");
     } finally {
+      triggerRefresh();
       setIsLoading(false);
     }
   };

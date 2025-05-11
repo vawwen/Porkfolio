@@ -7,6 +7,7 @@ export const useAuthStore = create((set) => ({
   token: null,
   isLoading: false,
   isCheckingAuth: true,
+  _version: 0,
 
   register: async (username, email, password) => {
     set({ isLoading: true });
@@ -96,9 +97,14 @@ export const useAuthStore = create((set) => ({
     }
   },
 
+  triggerRefresh: () => {
+    set((state) => ({ _version: state._version + 1 }));
+  },
+
   logout: async () => {
     await AsyncStorage.removeItem("token");
     await AsyncStorage.removeItem("user");
+    await AsyncStorage.setItem("_version", 0);
     set({ token: null, user: null });
   },
 }));

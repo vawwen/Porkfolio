@@ -20,7 +20,7 @@ import { API_URL } from "../../constants/api";
 import homeStyles from "../../assets/styles/home.styles";
 
 export default function Home() {
-  const { user, token } = useAuthStore();
+  const { user, token, _version } = useAuthStore();
   const router = useRouter();
 
   const [balance, setBalance] = useState(0);
@@ -103,6 +103,10 @@ export default function Home() {
   useEffect(() => {
     fetchExpenses();
   }, []);
+
+  useEffect(() => {
+    fetchExpenses();
+  }, [_version]);
 
   const handleLoadMore = async () => {
     if (hasMore && !isLoading && !refreshing) {

@@ -25,6 +25,7 @@ export default function expenseModal() {
   const item = useMemo(() => {
     return params?.data ? JSON.parse(params.data) : null;
   }, [params?.data]);
+  const triggerRefresh = useAuthStore((state) => state.triggerRefresh);
 
   const [name, setName] = useState("");
   const [amount, setAmount] = useState(""); // value
@@ -39,9 +40,7 @@ export default function expenseModal() {
   const [walletLoading, setWalletLoading] = useState(false);
   const [typeLoading, setTypeLoading] = useState(false);
 
-  //   name, value, category, type, wallet;
-
-  const { token } = useAuthStore();
+  const { token, _version } = useAuthStore();
 
   const handleCategoryChange = (option) => {
     setCategory(option);
@@ -84,7 +83,7 @@ export default function expenseModal() {
       Alert.alert("Error", error.message || "Something went wrong");
     } finally {
       setIsLoading(false);
-      action();
+      triggerRefresh();
     }
   };
 
@@ -125,6 +124,7 @@ export default function expenseModal() {
       console.error("Error editing transaction:", error);
       Alert.alert("Error", error.message || "Something went wrong");
     } finally {
+      triggerRefresh();
       setIsLoading(false);
     }
   };
@@ -154,6 +154,7 @@ export default function expenseModal() {
       console.error("Delete error:", error);
       Alert.alert("Error", error.message || "Something went wrong");
     } finally {
+      triggerRefresh();
       setIsLoading(false);
     }
   };
@@ -225,6 +226,11 @@ export default function expenseModal() {
     fetchTypes();
     fetchWallets();
   }, []);
+
+  useEffect(() => {
+    fetchTypes();
+    fetchWallets();
+  }, [_version]);
 
   useEffect(() => {
     fetchTypes();

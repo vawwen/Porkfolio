@@ -23,6 +23,7 @@ import { API_URL } from "../../constants/api";
 
 export default function profileModal() {
   const { user, edit, token } = useAuthStore();
+  const triggerRefresh = useAuthStore((state) => state.triggerRefresh);
 
   const router = useRouter();
 
@@ -140,6 +141,7 @@ export default function profileModal() {
       console.error("Error editing profile:", error);
       Alert.alert("Error", error.message || "Something went wrong");
     } finally {
+      triggerRefresh();
       setIsLoading(false);
     }
   };

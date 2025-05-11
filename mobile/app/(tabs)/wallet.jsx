@@ -19,7 +19,7 @@ import logo from "../../assets/images/logo-1.png";
 import styles from "@/assets/styles/wallet.styles";
 
 export default function wallet() {
-  const { token } = useAuthStore();
+  const { token, _version } = useAuthStore();
 
   const [wallets, setWallets] = useState([]);
   const [totalBalance, setTotalBalance] = useState(0);
@@ -51,6 +51,10 @@ export default function wallet() {
   useEffect(() => {
     fetchWallets();
   }, []);
+
+  useEffect(() => {
+    fetchWallets();
+  }, [_version]);
 
   const router = useRouter();
 

@@ -18,7 +18,7 @@ import styles from "../../assets/styles/type.styles";
 
 export default function Type() {
   const router = useRouter();
-  const { token } = useAuthStore();
+  const { token, _version } = useAuthStore();
 
   const onClose = () => {
     router.back();
@@ -51,6 +51,10 @@ export default function Type() {
   useEffect(() => {
     fetchTypes();
   }, []);
+
+  useEffect(() => {
+    fetchTypes();
+  }, [_version]);
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
