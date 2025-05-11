@@ -10,7 +10,7 @@ const statistics = () => {
   const [activeIndex, setActiveIndex] = useState(0)
   const timeRanges = ['Weekly', 'Monthly', 'Yearly']
 
-  const fetchWeeklyData = () => {
+  const fetchWeeklyTransactionData = () => {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const data = [];
     
@@ -43,7 +43,7 @@ const statistics = () => {
     return data;
   }
   
-  const fetchMonthlyData = () => {
+  const fetchMonthlyTransactionData = () => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const data = [];
     
@@ -76,7 +76,7 @@ const statistics = () => {
     return data;
   }
   
-  const fetchYearlyData = () => {
+  const fetchYearlyTransactionData = () => {
     const years = ['2020', '2021', '2022', '2023', '2024'];
     const data = [];
     
@@ -108,19 +108,75 @@ const statistics = () => {
     }
     return data;
   }
-  
-  const data = {
-    Weekly: fetchWeeklyData(),
-    Monthly: fetchMonthlyData(),
-    Yearly: fetchYearlyData()
-  }
 
-  const [chartData, setChartData] = useState(data.Weekly)
+  const fetchWeeklyPieData = () => {
+    const categories = ['Food', 'Transport', 'Shopping', 'Bills', 'Other'];
+    const percentages = [35, 25, 20, 15, 5];
+    const colors = ['#4CAF50', '#2196F3', '#FFC107', '#F44336', '#9C27B0'];
+    return categories.map((category, index) => ({
+      value: percentages[index],
+      color: colors[index],
+      text: category,
+      labelComponent: () => (
+        <Text style={{color: colors.textPrimary, fontSize: 12}}>
+          {`${category} ${percentages[index]}%`}
+        </Text>
+      )
+    }));
+  };
+  
+  const fetchMonthlyPieData = () => {
+    const categories = ['Food', 'Transport', 'Shopping', 'Bills', 'Other'];
+    const percentages = [30, 20, 25, 20, 5];
+    const colors = ['#4CAF50', '#2196F3', '#FFC107', '#F44336', '#9C27B0'];
+    return categories.map((category, index) => ({
+      value: percentages[index],
+      color: colors[index],
+      text: category,
+      labelComponent: () => (
+        <Text style={{color: colors.textPrimary, fontSize: 12}}>
+          {`${category} ${percentages[index]}%`}
+        </Text>
+      )
+    }));
+  };
+  
+  const fetchYearlyPieData = () => {
+    const categories = ['Food', 'Transport', 'Shopping', 'Bills', 'Other'];
+    const percentages = [25, 15, 30, 25, 5];
+    const colors = ['#4CAF50', '#2196F3', '#FFC107', '#F44336', '#9C27B0'];
+    return categories.map((category, index) => ({
+      value: percentages[index],
+      color: colors[index],
+      text: category,
+      labelComponent: () => (
+        <Text style={{color: colors.textPrimary, fontSize: 12}}>
+          {`${category} ${percentages[index]}%`}
+        </Text>
+      )
+    }));
+  };
+
+const barChartInitData = {
+  Weekly: fetchWeeklyTransactionData(),
+  Monthly: fetchMonthlyTransactionData(),
+  Yearly: fetchYearlyTransactionData()
+}
+
+const pieChartInitData = {
+  Weekly: fetchWeeklyPieData(),
+  Monthly: fetchMonthlyPieData(),
+  Yearly: fetchYearlyPieData()
+}
+
+  const [barChartData, setChartData] = useState(barChartInitData.Weekly)
+  const [pieData, setPieData] = useState(pieChartInitData.Weekly);  
 
   const handleTimeRangeChange = (event) => {
     const selectedIndex = event.nativeEvent.selectedSegmentIndex
     setActiveIndex(selectedIndex)
-    setChartData(data[timeRanges[selectedIndex]])
+    setChartData(barChartInitData[timeRanges[selectedIndex]])
+    setPieData(pieChartInitData[timeRanges[selectedIndex]])
   }
 
   return (
@@ -149,12 +205,14 @@ const statistics = () => {
             fontStyle={{...styles.segmentFontStyle, color: colors.textDark}}
             style={styles.segmentStyle}
           />
-
+            
+            {/* Bar Chart */}
+            <Text style={styles.chartTitle}>Transactions</Text>
             <View style={styles.chartContainer}>
               {
-                chartData.length > 0? (
+                barChartData.length > 0? (
                   <BarChart
-                    data={chartData}
+                    data={barChartData}
                     barWidth={scale(12)}
                     spacing={[1,2].includes(activeIndex)? scale(25):scale(16)}
                     roundedTop
@@ -172,6 +230,39 @@ const statistics = () => {
                 )
               }
             </View>
+
+            {/* Pie Chart */}
+            <View style={styles.chartContainer}>
+              <Text style={styles.chartTitle}>Transaction Breakdown</Text>
+              <View style={styles.pieChartWrapper}>
+                <PieChart
+                  data={pieData.map(item => ({
+                    ...item,
+                    focusedLabelComponent: () => (
+                      <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>
+                        {item.value}%
+                      </Text>
+                    ),
+                    labelComponent: () => (
+                      <Text style={{ color: 'white', fontSize: 10 }}>
+                        {item.value}%
+                      </Text>
+                    )
+                  }))}
+                  radius={scale(80)}
+                  innerRadius={scale(50)}
+                  focusOnPress
+                />
+                <View style={styles.pieLegend}>
+                  {pieData.map((item, index) => (
+                    <View key={index} style={styles.legendItem}>
+                      <View style={[styles.legendColor, {backgroundColor: item.color}]} />
+                      <Text style={styles.legendText}>{item.text}</Text>
+                    </View>
+                  ))}
+                </View>
+            </View>
+          </View>
         </ScrollView>
       </View>
     </ScreenWrapper>
@@ -215,5 +306,41 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     flex: 1,
+  },
+  chartTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+    marginBottom: spacingY._10,
+    textAlign: 'center',
+  },
+  pieChartWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pieCenterText: {
+    fontSize: 14,
+    color: colors.textPrimary,
+    fontWeight: 'bold',
+  },
+  pieLegend: {
+    marginLeft: spacingX._20,
+    justifyContent: 'center',
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacingY._5,
+  },
+  legendColor: {
+    width: scale(12),
+    height: scale(12),
+    borderRadius: radius.sm,
+    marginRight: spacingX._5,
+  },
+  legendText: {
+    fontSize: 12,
+    color: colors.textPrimary,
   },
 })
