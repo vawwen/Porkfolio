@@ -162,7 +162,7 @@ export default function wallet() {
                       ${Math.abs(item?.balance)}
                     </Text>
                     <Text style={styles.walletSubtitle}>
-                      Limit: {item?.limit}
+                      Spending Limit: {item?.limit}
                     </Text>
                   </View>
                   {/* RIGHT */}

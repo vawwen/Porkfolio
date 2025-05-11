@@ -78,7 +78,7 @@ export default function walletSelection() {
                   key={item?._id}
                   style={walletStyles.walletItem}
                   onPress={() =>
-                    router.push({
+                    router.replace({
                       pathname: "/(tabs)",
                       params: {
                         data: JSON.stringify(item),
@@ -155,7 +155,7 @@ export default function walletSelection() {
                 key={"total"}
                 style={walletStyles.walletItem}
                 onPress={() =>
-                  router.push({
+                  router.replace({
                     pathname: "/(tabs)",
                     params: {
                       data: JSON.stringify({ name: "Total" }),
