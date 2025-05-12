@@ -14,6 +14,8 @@ import Loader from "@/components/Loader";
 import { Ionicons } from "@expo/vector-icons";
 import styles from "@/assets/styles/statistics.styles";
 
+import { weeklyData, monthlyData, yearlyData } from "./test";
+
 dayjs.extend(weekday);
 
 const statistics = () => {
@@ -30,27 +32,12 @@ const statistics = () => {
     try {
       setIsLoading(true);
 
-      const queryParams = new URLSearchParams({
-        // ...(selectedWallet &&
-        //   selectedWallet?.name !== "Total" && { wallet: selectedWallet._id }), // Only adds wallet if selectedWallet exists
-        timeType:
-          activeIndex === 0
-            ? "weekly"
-            : activeIndex === 1
-            ? "monthly"
-            : "yearly",
-      });
-
-      const response = await fetch(
-        `${API_URL}/expense/analytics?${queryParams}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to fetch analytics");
+      const data =
+        activeIndex === 0
+          ? weeklyData
+          : activeIndex === 1
+          ? monthlyData
+          : yearlyData;
 
       // Set Bar Data
       const transformedBarData = transformBarData(data?.barData);
@@ -73,7 +60,7 @@ const statistics = () => {
     let dataPoints;
     if (activeIndex === 0) {
       // Weekly
-      const startOfWeek = today.startOf("isoWeek");
+      const startOfWeek = today.subtract(1, "week").startOf("isoWeek");
       dataPoints = Array.from({ length: 7 }, (_, index) =>
         startOfWeek.add(index, "day").format("YYYY-MM-DD")
       );
