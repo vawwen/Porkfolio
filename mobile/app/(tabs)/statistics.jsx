@@ -126,10 +126,10 @@ const statistics = () => {
   const transformPieData = (originalData) => {
     const colorPalette = [
       "#D8B4FF",
-      "#C2A3FF",
+      "#9E7FD9",
       "#B4FFD8",
       "#FFD8B4",
-      "#9E7FD9",
+      "#7C4DFF",
     ];
 
     const overallTotal = originalData.reduce(
