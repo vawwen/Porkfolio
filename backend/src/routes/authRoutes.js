@@ -3,6 +3,8 @@ import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import protectRoute from "../middleware/auth.middleware.js";
 import cloudinary from "../lib/cloudinary.js";
+import Wallet from "../models/Wallet.js";
+import Type from "../models/Type.js";
 
 const router = express.Router();
 
@@ -51,6 +53,52 @@ router.post("/register", async (req, res) => {
     });
 
     await user.save();
+
+    const wallet = new Wallet({
+      name: "Your Wallet",
+      icon: profileImage,
+      limit: 10000,
+      user: user._id,
+    });
+
+    await wallet.save();
+
+    const defaultType = [
+      {
+        name: "Food",
+        icon: "restaurant-outline",
+        category: "expense",
+      },
+      {
+        name: "Transport",
+        icon: "car-outline",
+        category: "expense",
+      },
+      {
+        name: "Entertainment",
+        icon: "game-controller-outline",
+        category: "expense",
+      },
+      {
+        name: "Salary",
+        icon: "briefcase-outline",
+        category: "income",
+      },
+      {
+        name: "Cash",
+        icon: "cash-outline",
+        category: "income",
+      },
+    ];
+    for (let i = 0; i < defaultType.length; i++) {
+      const type = new Type({
+        name: defaultType[i].name,
+        icon: defaultType[i].icon,
+        category: defaultType[i].category,
+        user: user._id,
+      });
+      await type.save();
+    }
 
     const token = generateToken(user._id);
     res.status(201).json({

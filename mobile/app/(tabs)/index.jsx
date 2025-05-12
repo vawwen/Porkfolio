@@ -1,15 +1,14 @@
 import {
   Text,
   View,
-  Image,
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ScreenWrapper from "@/components/ScreenWrapper";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useAuthStore } from "../../store/authStore";
 import HomeIllust from "../../assets/images/home-illust.jpg";
 import { colors } from "../../constants/Theme";
@@ -17,29 +16,24 @@ import { Ionicons } from "@expo/vector-icons";
 import styles from "../../assets/styles/txn.styles";
 import FloatingButton from "../../components/FloatingButton";
 import { API_URL } from "../../constants/api";
-import homeStyles from "../../assets/styles/home.styles";
+import Loader from "@/components/Loader";
+import { Image } from "expo-image";
+import logo2 from "@/assets/images/i.png";
+import logo from "@/assets/images/logo-1.png";
 
 export default function Home() {
   const { user, token, _version } = useAuthStore();
   const router = useRouter();
 
+  const params = useLocalSearchParams();
+  const selectedWallet = useMemo(() => {
+    return params?.data ? JSON.parse(params.data) : null;
+  }, [params?.data]);
+
   const [balance, setBalance] = useState(0);
   const [balIndicator, setBalIndicator] = useState("");
   const [income, setIncome] = useState(0);
   const [expense, setExpense] = useState(0);
-
-  // Modal
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
-  const handleAddIncome = () => {
-    setIsModalVisible(false);
-    // Navigate to add income screen or show income form
-  };
-
-  const handleAddExpense = () => {
-    setIsModalVisible(false);
-    // Navigate to add expense screen or show expense form
-  };
 
   // Transaction List Items
   const [transactions, setTransactions] = useState([]);
@@ -54,12 +48,16 @@ export default function Home() {
       if (refresh) setRefreshing(true);
       else if (pageNum === 1) setIsLoading(true);
 
-      const response = await fetch(
-        `${API_URL}/expense?page=${pageNum}&limit=5`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const queryParams = new URLSearchParams({
+        ...(selectedWallet &&
+          selectedWallet?.name !== "Total" && { wallet: selectedWallet._id }), // Only adds wallet if selectedWallet exists
+        page: pageNum,
+        limit: 5,
+      });
+
+      const response = await fetch(`${API_URL}/expense?${queryParams}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       const data = await response.json();
       if (!response.ok)
@@ -191,22 +189,7 @@ export default function Home() {
   }, [balance]);
 
   // Can be loader
-  if (isLoading)
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: colors.background,
-        }}
-      >
-        <ActivityIndicator
-          size={30} //size
-          color={colors.primary}
-        />
-      </View>
-    );
+  if (isLoading) return <Loader />;
 
   return (
     <ScreenWrapper>
@@ -214,7 +197,7 @@ export default function Home() {
         <Image
           source={HomeIllust}
           style={styles.topImage}
-          resizeMode="stretch"
+          contentFit="stretch"
         />
         {/* Welcome box */}
         <View style={styles.content}>
@@ -242,24 +225,44 @@ export default function Home() {
             </Text>
           </View>
           <View style={styles.belowImageContent}>
+            <View
+              style={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                // marginBottom: 5,
+              }}
+            >
+              <Text style={[styles.section, { marginBottom: 5, width: "50%" }]}>
+                Summary
+              </Text>
+              <Text
+                style={[
+                  styles.section,
+                  { marginBottom: 5, width: "50%", paddingLeft: 8 },
+                ]}
+              >
+                Wallet
+              </Text>
+            </View>
             <View style={styles.incomeExpenseContainer}>
-              {/* Income */}
-              <TouchableOpacity style={styles.box}>
-                <View
-                  style={[
-                    styles.iconContainer,
-                    { backgroundColor: colors.successOverlay },
-                  ]}
-                >
-                  <Ionicons
-                    name="arrow-up-circle"
-                    size={25}
-                    color={colors.success}
-                    style={styles.inputIcon}
-                  />
-                </View>
-                <View style={styles.boxTextWrapper}>
-                  <Text style={[styles.subtitle, styles.boxText]}>Income</Text>
+              <View style={[styles.box, { flexDirection: "column" }]}>
+                {/* Income */}
+                <View style={styles.incomeExpense}>
+                  <View
+                    style={[
+                      styles.iconContainer,
+                      { backgroundColor: colors.successOverlay },
+                    ]}
+                  >
+                    <Ionicons
+                      name="arrow-up-circle"
+                      size={18}
+                      color={colors.success}
+                      style={styles.inputIcon}
+                    />
+                  </View>
                   <Text
                     style={[
                       styles.boxText,
@@ -271,35 +274,71 @@ export default function Home() {
                     ${income}
                   </Text>
                 </View>
-              </TouchableOpacity>
-
-              {/* Expense */}
-              <TouchableOpacity style={styles.box}>
                 <View
-                  style={[
-                    styles.iconContainer,
-                    { backgroundColor: colors.errorOverlay },
-                  ]}
-                >
-                  <Ionicons
-                    name="arrow-down-circle"
-                    size={25}
-                    color={colors.error}
-                    style={styles.inputIcon}
-                  />
-                </View>
-                <View style={styles.boxTextWrapper}>
-                  <Text style={[styles.subtitle, styles.boxText]}>Expense</Text>
+                  style={{
+                    width: "100%",
+                    height: 1,
+                    backgroundColor: colors.neutralLight,
+                    marginVertical: 2,
+                  }}
+                />
+                {/* Expense */}
+                <View style={styles.incomeExpense}>
+                  <View
+                    style={[
+                      styles.iconContainer,
+                      { backgroundColor: colors.errorOverlay },
+                    ]}
+                  >
+                    <Ionicons
+                      name="arrow-down-circle"
+                      size={18}
+                      color={colors.error}
+                      style={styles.inputIcon}
+                    />
+                  </View>
                   <Text
                     style={[
                       styles.boxText,
-                      expense == 0 ? styles.neutral : styles.expense,
+                      income == 0 ? styles.neutral : styles.expense,
                     ]}
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
                     ${expense}
                   </Text>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={[styles.box, { padding: 0 }]}
+                onPress={() =>
+                  router.push({
+                    pathname: "(modals)/walletSelection",
+                    params: { balance: balance.toString() },
+                  })
+                }
+              >
+                <View style={styles.miniWalletLeft}>
+                  <Image
+                    source={logo}
+                    style={styles.miniWalletLogo}
+                    contentFit="contain"
+                  />
+                  <Text
+                    style={styles.miniWalletName}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {selectedWallet?.name ?? "Total"}
+                  </Text>
+                </View>
+                <View style={styles.miniWalletRight}>
+                  <Image
+                    source={selectedWallet?.icon ?? logo2}
+                    style={styles.miniWalletIcon}
+                    contentFit="cover"
+                  />
                 </View>
               </TouchableOpacity>
             </View>
@@ -326,21 +365,21 @@ export default function Home() {
               ListFooterComponent={
                 hasMore && transactions.length > 0 ? (
                   <ActivityIndicator
-                    style={homeStyles.footerLoader}
+                    style={styles.footerLoader}
                     size="small"
                     color={colors.primary}
                   />
                 ) : null
               }
               ListEmptyComponent={
-                <View style={homeStyles.emptyContainer}>
+                <View style={styles.emptyContainer}>
                   <Ionicons
                     name="cash-outline"
                     size={60}
                     color={colors.secondary}
                   />
-                  <Text style={homeStyles.emptyText}>No transactions yet</Text>
-                  <Text style={homeStyles.emptySubtext}>
+                  <Text style={styles.emptyText}>No transactions yet</Text>
+                  <Text style={styles.emptySubtext}>
                     Start building your Porkfolio!
                   </Text>
                 </View>

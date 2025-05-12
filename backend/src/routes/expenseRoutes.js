@@ -2,6 +2,7 @@ import express from "express";
 import Expense from "../models/Expense.js";
 import protectRoute from "../middleware/auth.middleware.js";
 import Wallet from "../models/Wallet.js";
+import dayjs from "dayjs";
 
 const router = express.Router();
 
@@ -144,13 +145,26 @@ router.get("/", protectRoute, async (req, res) => {
     const limit = req.query.limit || 5;
     const skip = (page - 1) * limit;
 
-    const expense = await Expense.find()
+    let query = Expense.find();
+
+    if (wallet) {
+      query = query.where("wallet").equals(wallet);
+    }
+
+    query = query.where("user").equals(req.user._id);
+
+    const expense = await query
       .sort({ createdAt: -1 }) //desc
       .skip(skip)
       .limit(limit)
-      .populate("user", "username profileImage");
+      .populate("type");
 
-    const totalExpenseItem = await Expense.countDocuments();
+    const countQuery = Expense.countDocuments();
+
+    if (wallet) {
+      countQuery.where("wallet").equals(wallet);
+    }
+    const totalExpenseItem = await countQuery;
 
     let balance = 0;
     let totalIncome = 0;
@@ -241,15 +255,130 @@ router.delete("/:id", protectRoute, async (req, res) => {
   }
 });
 
-// Get all expenses
-// router.get("/", protectRoute, async (req, res) => {
-//   try {
-//     const type = await Expense.find({ user: req.user._id }).sort({ createdAt: -1 });
-//     res.json(type);
-//   } catch (error) {
-//     console.log("Error in getting all expenses", error);
-//     res.status(500).json({ message: "Internal server error" });
-//   }
-// });
+// Analytics
+router.get("/analytics", protectRoute, async (req, res) => {
+  const { timeType, wallet } = req.query;
+
+  try {
+    // Get current week's start (Monday) and end (Sunday)
+    const today = dayjs();
+    const startOfWeek = today.startOf("isoWeek").startOf("day");
+    const endOfWeek = today.endOf("isoWeek").endOf("day");
+
+    // Get start and end  of year
+    const startOfYear = today.startOf("year").startOf("day");
+    const endOfYear = today.endOf("year").endOf("day");
+
+    const dateFormat = {
+      weekly: "%Y-%m-%d",
+      monthly: "%Y-%m",
+      yearly: "%Y",
+    }[timeType];
+
+    const barData = await Expense.aggregate([
+      {
+        $match: {
+          user: req.user._id,
+          ...(wallet && {
+            wallet,
+          }),
+          ...(timeType === "weekly" && {
+            createdAt: {
+              $gte: startOfWeek.toDate(),
+              $lte: endOfWeek.toDate(),
+            },
+          }),
+          ...(timeType === "monthly" && {
+            createdAt: {
+              $gte: startOfYear.toDate(),
+              $lte: endOfYear.toDate(),
+            },
+          }),
+        },
+      },
+      {
+        $group: {
+          _id: {
+            period: {
+              $dateToString: { format: dateFormat, date: "$createdAt" },
+            },
+          },
+          income: {
+            $sum: { $cond: [{ $eq: ["$category", "income"] }, "$value", 0] },
+          },
+          expense: {
+            $sum: { $cond: [{ $eq: ["$category", "expense"] }, "$value", 0] },
+          },
+          netTotal: {
+            $sum: {
+              $cond: [
+                { $eq: ["$category", "income"] },
+                "$value",
+                { $multiply: ["$value", -1] },
+              ],
+            },
+          },
+        },
+      },
+      { $sort: { "_id.period": 1 } },
+    ]);
+
+    const pieData = await Expense.aggregate([
+      {
+        $match: {
+          user: req.user._id,
+          category: "expense", // Only expenses
+          ...(wallet && {
+            wallet,
+          }),
+          ...(timeType === "weekly" && {
+            createdAt: {
+              $gte: startOfWeek.toDate(),
+              $lte: endOfWeek.toDate(),
+            },
+          }),
+          ...(timeType === "monthly" && {
+            createdAt: {
+              $gte: startOfYear.toDate(),
+              $lte: endOfYear.toDate(),
+            },
+          }),
+        },
+      },
+      {
+        $group: {
+          _id: {
+            type: "$type", // Group by type
+          },
+          total: { $sum: "$value" }, // Total per type
+        },
+      },
+      {
+        $lookup: {
+          // Optional: Get type details
+          from: "types",
+          localField: "_id.type",
+          foreignField: "_id",
+          as: "typeDetails",
+        },
+      },
+      { $unwind: "$typeDetails" }, // Flatten the array
+      {
+        $project: {
+          period: "$_id.period",
+          type: "$typeDetails.name", // Use the populated name
+          total: 1,
+          _id: 0,
+        },
+      },
+      { $sort: { period: 1, total: -1 } }, // Sort by date then by amount
+    ]);
+
+    res.json({ barData, pieData });
+  } catch (error) {
+    console.log("Error in getting all expenses", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 export default router;
