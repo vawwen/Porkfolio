@@ -6,44 +6,6 @@ import Expense from "../models/Expense.js";
 const router = express.Router();
 
 // Create expense type
-// router.post("/", protectRoute, async (req, res) => {
-//   try {
-//     const { name, icon, category } = req.body;
-
-//     if (!name || !icon || !category) {
-//       return res.status(400).json({ message: "Please provide all fields" });
-//     }
-
-//     const existingType = await Type.findOne({ name });
-//     if (existingType) {
-//       return res.status(400).json({ message: "Expense type already exists" });
-//     }
-
-//     const existingIcon = await Type.findOne({ icon });
-//     if (existingIcon) {
-//       return res
-//         .status(400)
-//         .json({ message: "Expense with chosen icon already exists" });
-//     }
-
-//     const uploadRes = await cloudinary.uploader.upload(icon);
-//     const imageUrl = uploadRes.secure_url;
-
-//     const type = new Type({
-//       name,
-//       icon: imageUrl,
-//       user: req.user._id,
-//     });
-
-//     await type.save();
-
-//     res.status(201).json(type);
-//   } catch (error) {
-//     console.log("Error creating type", error);
-//     res.status(500).json({ message: "Internal server error" });
-//   }
-// });
-
 router.post("/", protectRoute, async (req, res) => {
   try {
     const { name, icon, category } = req.body;

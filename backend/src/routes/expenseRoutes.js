@@ -161,6 +161,7 @@ router.get("/", protectRoute, async (req, res) => {
 
     const countQuery = Expense.countDocuments();
 
+    countQuery.where("user").equals(req.user._id);
     if (wallet) {
       countQuery.where("wallet").equals(wallet);
     }

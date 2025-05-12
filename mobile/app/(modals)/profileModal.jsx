@@ -9,8 +9,8 @@ import {
   Platform,
   ActivityIndicator,
 } from "react-native";
-import { useEffect, useState, useMemo } from "react";
-import { colors, spacingY } from "@/constants/Theme";
+import { useEffect, useState } from "react";
+import { colors } from "@/constants/Theme";
 import { verticalScale } from "@/utils/styling";
 import ModalWrapper from "@/components/ModalWrapper";
 import { Image } from "expo-image";
@@ -126,7 +126,7 @@ export default function profileModal() {
         }),
       });
       const data = await response.json();
-      await edit(data.user);
+      await edit(data);
 
       if (!response.ok) throw new Error(data.message || "Something went wrong");
 
