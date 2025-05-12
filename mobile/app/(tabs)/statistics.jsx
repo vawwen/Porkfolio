@@ -258,7 +258,7 @@ const statistics = () => {
           {/* Pie Chart */}
           <View style={styles.chartContainer}>
             <Text style={[styles.chartTitle, { width: "100%" }]}>
-              Transaction Breakdown
+              Expense Breakdown
             </Text>
             <View style={styles.pieChartWrapper}>
               <PieChart

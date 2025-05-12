@@ -254,15 +254,141 @@ router.delete("/:id", protectRoute, async (req, res) => {
   }
 });
 
-// Get all expenses
-// router.get("/", protectRoute, async (req, res) => {
-//   try {
-//     const type = await Expense.find({ user: req.user._id }).sort({ createdAt: -1 });
-//     res.json(type);
-//   } catch (error) {
-//     console.log("Error in getting all expenses", error);
-//     res.status(500).json({ message: "Internal server error" });
-//   }
-// });
+// Analytics
+router.get("/analytics", protectRoute, async (req, res) => {
+  const { timeType, wallet } = req.query;
+
+  try {
+    // Get current week's start (Monday) and end (Sunday)
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(
+      today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1)
+    );
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    // Get start and end  of year
+    const currentYear = new Date().getFullYear();
+    const startOfYear = new Date(`${currentYear}-01-01T00:00:00.000Z`);
+    const endOfYear = new Date(`${currentYear}-12-31T23:59:59.999Z`);
+
+    const dateFormat = {
+      weekly: "%Y-%m-%d",
+      monthly: "%Y-%m",
+      yearly: "%Y",
+    }[timeType];
+
+    const barData = await Expense.aggregate([
+      {
+        $match: {
+          user: req.user._id,
+          ...(wallet && {
+            wallet,
+          }),
+          ...(timeType === "weekly" && {
+            createdAt: {
+              $gte: startOfWeek,
+              $lte: endOfWeek,
+            },
+          }),
+          ...(timeType === "monthly" && {
+            createdAt: {
+              $gte: startOfYear,
+              $lte: endOfYear,
+            },
+          }),
+        },
+      },
+      {
+        $group: {
+          _id: {
+            period: {
+              $dateToString: { format: dateFormat, date: "$createdAt" },
+            },
+          },
+          income: {
+            $sum: { $cond: [{ $eq: ["$category", "income"] }, "$value", 0] },
+          },
+          expense: {
+            $sum: { $cond: [{ $eq: ["$category", "expense"] }, "$value", 0] },
+          },
+          netTotal: {
+            $sum: {
+              $cond: [
+                { $eq: ["$category", "income"] },
+                "$value",
+                { $multiply: ["$value", -1] },
+              ],
+            },
+          },
+        },
+      },
+      { $sort: { "_id.period": 1 } },
+    ]);
+
+    const pieData = await Expense.aggregate([
+      {
+        $match: {
+          user: req.user._id,
+          category: "expense", // Only expenses
+          ...(wallet && {
+            wallet,
+          }),
+          ...(timeType === "weekly" && {
+            createdAt: {
+              $gte: startOfWeek,
+              $lte: endOfWeek,
+            },
+          }),
+          ...(timeType === "monthly" && {
+            createdAt: {
+              $gte: startOfYear,
+              $lte: endOfYear,
+            },
+          }),
+        },
+      },
+      {
+        $group: {
+          _id: {
+            // period: {
+            //   $dateToString: { format: dateFormat, date: "$createdAt" },
+            // },
+            type: "$type", // Group by type
+          },
+          total: { $sum: "$value" }, // Total per type
+        },
+      },
+      {
+        $lookup: {
+          // Optional: Get type details
+          from: "types",
+          localField: "_id.type",
+          foreignField: "_id",
+          as: "typeDetails",
+        },
+      },
+      { $unwind: "$typeDetails" }, // Flatten the array
+      {
+        $project: {
+          period: "$_id.period",
+          type: "$typeDetails.name", // Use the populated name
+          total: 1,
+          _id: 0,
+        },
+      },
+      { $sort: { period: 1, total: -1 } }, // Sort by date then by amount
+    ]);
+
+    res.json({ barData, pieData });
+  } catch (error) {
+    console.log("Error in getting all expenses", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 export default router;
