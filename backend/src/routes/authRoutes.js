@@ -75,6 +75,11 @@ router.post("/register", async (req, res) => {
         category: "expense",
       },
       {
+        name: "Entertainment",
+        icon: "game-controller-outline",
+        category: "expense",
+      },
+      {
         name: "Salary",
         icon: "briefcase-outline",
         category: "income",

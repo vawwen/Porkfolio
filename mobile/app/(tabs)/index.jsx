@@ -16,7 +16,6 @@ import { Ionicons } from "@expo/vector-icons";
 import styles from "../../assets/styles/txn.styles";
 import FloatingButton from "../../components/FloatingButton";
 import { API_URL } from "../../constants/api";
-import homeStyles from "../../assets/styles/home.styles";
 import Loader from "@/components/Loader";
 import { Image } from "expo-image";
 import logo2 from "@/assets/images/i.png";
@@ -366,21 +365,21 @@ export default function Home() {
               ListFooterComponent={
                 hasMore && transactions.length > 0 ? (
                   <ActivityIndicator
-                    style={homeStyles.footerLoader}
+                    style={styles.footerLoader}
                     size="small"
                     color={colors.primary}
                   />
                 ) : null
               }
               ListEmptyComponent={
-                <View style={homeStyles.emptyContainer}>
+                <View style={styles.emptyContainer}>
                   <Ionicons
                     name="cash-outline"
                     size={60}
                     color={colors.secondary}
                   />
-                  <Text style={homeStyles.emptyText}>No transactions yet</Text>
-                  <Text style={homeStyles.emptySubtext}>
+                  <Text style={styles.emptyText}>No transactions yet</Text>
+                  <Text style={styles.emptySubtext}>
                     Start building your Porkfolio!
                   </Text>
                 </View>

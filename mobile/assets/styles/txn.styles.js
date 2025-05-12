@@ -164,6 +164,27 @@ const styles = StyleSheet.create({
   },
   miniWalletLogo: { aspectRatio: 1, height: "60%" },
   miniWalletName: { width: "100%", fontSize: 16, fontWeight: 800 },
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 40,
+    marginTop: 40,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: colors.textPrimary,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: "center",
+  },
+  footerLoader: {
+    marginVertical: 20,
+  },
 });
 
 export default styles;

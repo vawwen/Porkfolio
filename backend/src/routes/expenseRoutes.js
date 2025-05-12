@@ -2,6 +2,7 @@ import express from "express";
 import Expense from "../models/Expense.js";
 import protectRoute from "../middleware/auth.middleware.js";
 import Wallet from "../models/Wallet.js";
+import dayjs from "dayjs";
 
 const router = express.Router();
 
@@ -260,21 +261,13 @@ router.get("/analytics", protectRoute, async (req, res) => {
 
   try {
     // Get current week's start (Monday) and end (Sunday)
-    const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(
-      today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1)
-    );
-    startOfWeek.setHours(0, 0, 0, 0);
-
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    endOfWeek.setHours(23, 59, 59, 999);
+    const today = dayjs();
+    const startOfWeek = today.startOf("isoWeek").startOf("day");
+    const endOfWeek = today.endOf("isoWeek").endOf("day");
 
     // Get start and end  of year
-    const currentYear = new Date().getFullYear();
-    const startOfYear = new Date(`${currentYear}-01-01T00:00:00.000Z`);
-    const endOfYear = new Date(`${currentYear}-12-31T23:59:59.999Z`);
+    const startOfYear = today.startOf("year").startOf("day");
+    const endOfYear = today.endOf("year").endOf("day");
 
     const dateFormat = {
       weekly: "%Y-%m-%d",
@@ -291,14 +284,14 @@ router.get("/analytics", protectRoute, async (req, res) => {
           }),
           ...(timeType === "weekly" && {
             createdAt: {
-              $gte: startOfWeek,
-              $lte: endOfWeek,
+              $gte: startOfWeek.toDate(),
+              $lte: endOfWeek.toDate(),
             },
           }),
           ...(timeType === "monthly" && {
             createdAt: {
-              $gte: startOfYear,
-              $lte: endOfYear,
+              $gte: startOfYear.toDate(),
+              $lte: endOfYear.toDate(),
             },
           }),
         },
@@ -340,14 +333,14 @@ router.get("/analytics", protectRoute, async (req, res) => {
           }),
           ...(timeType === "weekly" && {
             createdAt: {
-              $gte: startOfWeek,
-              $lte: endOfWeek,
+              $gte: startOfWeek.toDate(),
+              $lte: endOfWeek.toDate(),
             },
           }),
           ...(timeType === "monthly" && {
             createdAt: {
-              $gte: startOfYear,
-              $lte: endOfYear,
+              $gte: startOfYear.toDate(),
+              $lte: endOfYear.toDate(),
             },
           }),
         },
@@ -355,9 +348,6 @@ router.get("/analytics", protectRoute, async (req, res) => {
       {
         $group: {
           _id: {
-            // period: {
-            //   $dateToString: { format: dateFormat, date: "$createdAt" },
-            // },
             type: "$type", // Group by type
           },
           total: { $sum: "$value" }, // Total per type
