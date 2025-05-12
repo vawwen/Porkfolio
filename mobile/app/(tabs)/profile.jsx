@@ -18,21 +18,6 @@ export default function Profile() {
       icon: "person-outline",
       routeName: "/(modals)/profileModal",
     },
-    // {
-    //   title: "Settings",
-    //   icon: "settings-outline",
-    //   routeName: "/(modals)/settingsModal",
-    // },
-    // {
-    //   title: "Spending Limit",
-    //   icon: "cash-outline",
-    //   routeName: "/(modals)/spendingModal",
-    // },
-    // {
-    //   title: "Budget Allocation",
-    //   icon: "pie-chart-outline",
-    //   routeName: "/(modals)/budgetModal",
-    // },
     {
       title: "Transaction Types",
       icon: "swap-horizontal",
